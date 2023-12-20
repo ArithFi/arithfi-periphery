@@ -49,10 +49,17 @@ func HandleEvents(c echo.Context) error {
 	}
 
 	if e.OrderType == "MARKET_ORDER_FEE" {
+		// 开单成功，记录到用户的活跃订单
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "LIMIT_ORDER_FEE" {
+		// 开单成功，记录到用户的活跃订单
+		return c.JSON(http.StatusOK, e)
+	}
+
+	if e.OrderType == "TP_ORDER_FEE" {
+		// 关单成功，删掉用户的活跃订单
 		return c.JSON(http.StatusOK, e)
 	}
 
@@ -61,38 +68,37 @@ func HandleEvents(c echo.Context) error {
 	}
 
 	if e.OrderType == "MARKET_CLOSE_FEE" {
-		return c.JSON(http.StatusOK, e)
-	}
-
-	if e.OrderType == "LIMIT_REQUEST" {
-		return c.JSON(http.StatusOK, e)
-	}
-
-	if e.OrderType == "LIMIT_CANCEL" {
-		return c.JSON(http.StatusOK, e)
-	}
-
-	if e.OrderType == "LIMIT_EDIT" {
-		return c.JSON(http.StatusOK, e)
-	}
-
-	if e.OrderType == "MARKET_LIQUIDATION" {
-		return c.JSON(http.StatusOK, e)
-	}
-
-	if e.OrderType == "MARKET_ORDER_ADD" {
-		return c.JSON(http.StatusOK, e)
-	}
-
-	if e.OrderType == "SL_ORDER_FEE" {
+		// 关单成功，删掉用户的活跃订单
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "TPSL_EDIT" {
+		// Nothing， Record
 		return c.JSON(http.StatusOK, e)
 	}
 
-	if e.OrderType == "TP_ORDER_FEE" {
+	if e.OrderType == "LIMIT_REQUEST" {
+		// Nothing， Record
+		return c.JSON(http.StatusOK, e)
+	}
+
+	if e.OrderType == "LIMIT_CANCEL" {
+		// Nothing， Record
+		return c.JSON(http.StatusOK, e)
+	}
+
+	if e.OrderType == "LIMIT_EDIT" {
+		// Nothing， Record
+		return c.JSON(http.StatusOK, e)
+	}
+
+	if e.OrderType == "MARKET_LIQUIDATION" {
+		// 爆仓，删掉用户的活跃订单
+		return c.JSON(http.StatusOK, e)
+	}
+
+	if e.OrderType == "MARKET_ORDER_ADD" {
+		// 更新用户的活跃订单
 		return c.JSON(http.StatusOK, e)
 	}
 
