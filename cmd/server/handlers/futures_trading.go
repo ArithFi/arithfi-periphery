@@ -1,16 +1,16 @@
-// handlers/handlers.go
-
 package handlers
 
 import (
+	"github.com/arithfi/arithfi-periphery/cmd/server/configs"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
 
-// Hello function to return Hello, World!
-func Hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
-}
+var futures_order_collection *mongo.Collection = configs.GetCollection("futures_order")
+var futures_tx_collection *mongo.Collection = configs.GetCollection("futures_tx")
+var futures_tokentxn_collection *mongo.Collection = configs.GetCollection("futures_tokentxn")
+var futures_user_collection *mongo.Collection = configs.GetCollection("user")
 
 type Event struct {
 	CreateTime           string `json:"create_time" form:"create_time" query:"create_time"`
@@ -49,26 +49,45 @@ func HandleEvents(c echo.Context) error {
 	}
 
 	if e.OrderType == "MARKET_ORDER_FEE" {
-		// 开单成功，记录到用户的活跃订单
+		// 市价开单成功，需要创建仓位，记录 tx 动作，
+		// 记录资金流转; 个人可用(手续费、剩余金额) -> 期货系统合约可用;
+		// 如果存在邀请关系的话，期货系统合约 -> 邀请人可用余额
+
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "LIMIT_ORDER_FEE" {
-		// 开单成功，记录到用户的活跃订单
+		// 限价开单成功，需要创建仓位，记录tx动作，
+		// 记录资金变化; 从 个人冻结账户(手续费、剩余金额) -> 期货系统合约可用余额
+		//
+		// 如果存在邀请关系的话，期货系统合约 -> 邀请人可用余额 (不立即到账)
+		// 如果是Copy单，存在一个 return 剩余金额（返回），不会立即到账， 期货系统合约 -> 个人可用余额
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "TP_ORDER_FEE" {
-		// 关单成功，删掉用户的活跃订单
+		// TP 关单成功，删掉用户的活跃订单
+		// 期货系统合约 -> 个人可用余额
+		// 执行费个人可用余额 -> 期货系统合约可用余额
+		// 如果 Copy 单，分润 期货系统合约 -> 到邀请人 (不立即到账)
+		// 如果 Copy 单，存在 return 剩余金额，总额不会立即到账， 期货系统合约 -> 个人可用余额
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "SL_ORDER_FEE" {
+		// TP 关单成功，删掉用户的活跃订单
+		// 期货系统合约 -> 个人可用余额
+		// 执行费个人可用余额 -> 期货系统合约可用余额
+		// 如果 Copy 单，分润 期货系统合约 -> 到邀请人 (不立即到账)
+		// 如果 Copy 单，存在 return 剩余金额，总额不会立即到账， 期货系统合约 -> 个人可用余额
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "MARKET_CLOSE_FEE" {
-		// 关单成功，删掉用户的活跃订单
+		// TP 关单成功，删掉用户的活跃订单
+		// 期货系统合约 -> 个人可用余额
+		// 如果 Copy 单，分润 期货系统合约 -> 到邀请人 (不立即到账)
+		// 如果 Copy 单，存在 return 剩余金额，总额不会立即到账， 期货系统合约 -> 个人可用余额
 		return c.JSON(http.StatusOK, e)
 	}
 
@@ -78,11 +97,13 @@ func HandleEvents(c echo.Context) error {
 	}
 
 	if e.OrderType == "LIMIT_REQUEST" {
+		// 有资金流转，个人可用 -> 个人冻结
 		// Nothing， Record
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "LIMIT_CANCEL" {
+		// 有资金流转，个人冻结 -> 个人可用
 		// Nothing， Record
 		return c.JSON(http.StatusOK, e)
 	}
@@ -94,13 +115,24 @@ func HandleEvents(c echo.Context) error {
 
 	if e.OrderType == "MARKET_LIQUIDATION" {
 		// 爆仓，删掉用户的活跃订单
+		// 有资金流转，期货系统合约 -> 个人可用
 		return c.JSON(http.StatusOK, e)
 	}
 
 	if e.OrderType == "MARKET_ORDER_ADD" {
+		// 个人可用 -> 期货系统合约
 		// 更新用户的活跃订单
 		return c.JSON(http.StatusOK, e)
 	}
+
+	// 充值事件
+	// 系统合约 -> 个人可用
+
+	// 提现事件
+	// 个人可用 -> 系统合约
+
+	// 空投事件
+	// 运营账户 -> 个人可用
 
 	return c.NoContent(http.StatusBadRequest)
 }

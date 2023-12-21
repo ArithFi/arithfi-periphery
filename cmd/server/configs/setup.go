@@ -9,19 +9,27 @@ import (
 	"time"
 )
 
-func ConnectDB() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI()))
+var (
+	DB *mongo.Client
+)
+
+// init function to initialize the MongoDB client
+func init() {
+	DB = connectDB()
+}
+
+// connectDB function to connect to MongoDB
+func connectDB() *mongo.Client {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(EnvMongoURI()))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Set timeout for the client
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	//ping the database
+	// Ping the database
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -30,11 +38,8 @@ func ConnectDB() *mongo.Client {
 	return client
 }
 
-// Client instance
-var DB *mongo.Client = ConnectDB()
-
-// getting database collections
-func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	collection := client.Database("golangAPI").Collection(collectionName)
+// GetCollection function to get database collections
+func GetCollection(collectionName string) *mongo.Collection {
+	collection := DB.Database("periphery").Collection(collectionName)
 	return collection
 }
