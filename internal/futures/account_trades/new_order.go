@@ -6,10 +6,11 @@ import (
 )
 
 type (
-	Request struct {
+	NewOrderReqType struct {
 		OrderId         int    `json:"orderId" validate:"required"` // OrderId = PositionIndex
 		WalletAddress   string `json:"walletAddress" validate:"required"`
 		Symbol          string `json:"symbol" validate:"required"` // Symbol = Pair = Product
+		Side            string `json:"side" validate:"required"`   // Side, ['BUY', 'SELL']
 		PositionSide    string `json:"positionSide"`               // PositionSide, ['LONG', 'SHORT']
 		Type            string `json:"type" validate:"required"`   // Type, ['SELF', 'COPY']
 		CopyFromAddress string `json:"copyFromAddress"`
@@ -27,18 +28,20 @@ type (
 NewOrder Send in a new order.
 */
 func NewOrder(c echo.Context) error {
-	// 获取必要的订单信息，并校验
+	// Obtain necessary order information and verify.
 
-	// 如果是自开单
-	// 如果有邀请关系，需要关联邀请人信息到该订单，便于返佣记录生成；
+	// if Type = SELF
+	// If there is an invitation relationship, it is necessary to associate the invite's information with the order for
+	// the convenience of generating commission records.
 
-	// 如果是复制单
-	// 需要关联复制人信息，便于分润记录生成
+	// if Type = COPY
+	// Need to associate and copy the information of the person for easy generation of profit sharing records.
 
-	// 记录资金的流转
-	// 手续费流转 -》 合约账户（立即到账）
-	// 剩余开仓金额 -》合约账户（立即到账）
-	// 合约账户 -》 返佣人账户（只生成记录，不立即到账，需要手动触发）
+	// Record the circulation of funds.
+	// Transaction Fee Circulation -> Contract Account (Instant Settlement)
+	// Remaining Opening Amount -> Contract Account (Instantly Available)
+	// Contract Account -> Commission Account (only generates records, not immediately credited, manual trigger required)
+
 	return c.JSON(http.StatusOK, map[string]string{
 		"msg": "ok",
 	})
