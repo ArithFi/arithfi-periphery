@@ -3,6 +3,7 @@ package configs
 import (
 	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -10,12 +11,23 @@ import (
 )
 
 var (
-	DB *mongo.Client
+	DB    *mongo.Client
+	CACHE *redis.Client
 )
 
-// init function to initialize the MongoDB client
+// init function to initialize the MongoDB client and the Redis client
 func init() {
 	DB = connectDB()
+	CACHE = connectCache()
+}
+
+func connectCache() *redis.Client {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+	return rdb
 }
 
 // connectDB function to connect to MongoDB
