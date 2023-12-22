@@ -16,7 +16,11 @@ func FuturesRoutes(e *echo.Echo) {
 	//e.GET("futures/ticker/price", market_data.TickerPrice)
 
 	// Account trades
+	e.GET("futures/order", account_trades.QueryOrder)
 	e.POST("futures/order", account_trades.NewOrder)
 	e.PUT("futures/order", account_trades.ModifyOrder)
-
+	e.DELETE("futures/order", account_trades.CancelOrder)
+	e.GET("futures/orderAmendment", account_trades.GetOrderAmendment)
+	e.GET("futures/openOrder", account_trades.QueryCurrentOpenOrder)
+	e.GET("futures/openOrders", account_trades.QueryCurrentOpenOrders)
 }

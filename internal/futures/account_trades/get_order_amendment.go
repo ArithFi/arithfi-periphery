@@ -6,15 +6,15 @@ import (
 )
 
 type (
-	QueryOrderReqType struct {
+	GetOrderAmendmentReqType struct {
 		OrderId int `json:"orderId" validate:"required"` // OrderId = PositionIndex
 	}
 )
 
 /*
-QueryOrder Check an order's status.
+GetOrderAmendment Get order modification history
 */
-func QueryOrder(c echo.Context) error {
+func GetOrderAmendment(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"msg": "ok",
 	})
