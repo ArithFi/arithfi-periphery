@@ -6,15 +6,15 @@ import (
 )
 
 type (
-	GetPositionMarginChangeHistoryReqType struct {
+	GetBalanceReqType struct {
 		WalletAddress string `json:"walletAddress" validate:"required"` // WalletAddress
 	}
 )
 
 /*
-GetPositionMarginChangeHistory Add position margin
+GetBalance Get account balance
 */
-func GetPositionMarginChangeHistory(c echo.Context) error {
+func GetBalance(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"msg": "ok",
 	})

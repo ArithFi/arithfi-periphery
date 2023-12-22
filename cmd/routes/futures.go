@@ -23,4 +23,8 @@ func FuturesRoutes(e *echo.Echo) {
 	e.GET("futures/orderAmendment", account_trades.GetOrderAmendment)
 	e.GET("futures/openOrder", account_trades.QueryCurrentOpenOrder)
 	e.GET("futures/openOrders", account_trades.QueryCurrentOpenOrders)
+	e.GET("futures/account", account_trades.GetAccount)
+	e.GET("futures/balance", account_trades.GetBalance)
+	e.GET("futures/userTrades", account_trades.GetTradeList)
+	e.GET("futures/allOrders", account_trades.GetAllOrders)
 }
