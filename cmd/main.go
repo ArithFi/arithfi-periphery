@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "github.com/arithfi/arithfi-periphery/cmd/server/configs"
-	"github.com/arithfi/arithfi-periphery/cmd/server/routes"
+	"github.com/arithfi/arithfi-periphery/cmd/routes"
+	_ "github.com/arithfi/arithfi-periphery/configs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

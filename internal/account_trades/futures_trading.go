@@ -1,7 +1,7 @@
-package handlers
+package account_trades
 
 import (
-	"github.com/arithfi/arithfi-periphery/cmd/server/configs"
+	"github.com/arithfi/arithfi-periphery/configs"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
@@ -52,6 +52,12 @@ func HandleEvents(c echo.Context) error {
 		// 市价开单成功，需要创建仓位，记录 tx 动作，
 		// 记录资金流转; 个人可用(手续费、剩余金额) -> 期货系统合约可用;
 		// 如果存在邀请关系的话，期货系统合约 -> 邀请人可用余额
+		// 如果是copy单，需要事先登记copy人信息，准备分润
+
+		_, err := futures_order_collection.InsertOne(c.Request().Context(), e)
+		if err != nil {
+			return err
+		}
 
 		return c.JSON(http.StatusOK, e)
 	}
@@ -133,6 +139,9 @@ func HandleEvents(c echo.Context) error {
 
 	// 空投事件
 	// 运营账户 -> 个人可用
+
+	// 创建用户事件
+	// 创建个人用户
 
 	return c.NoContent(http.StatusBadRequest)
 }
