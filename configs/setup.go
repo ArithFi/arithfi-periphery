@@ -23,7 +23,7 @@ func init() {
 
 func connectCache() *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     EnvRedisURI(),
 		Password: "",
 		DB:       0,
 	})
