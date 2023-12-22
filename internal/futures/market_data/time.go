@@ -12,10 +12,9 @@ Weight: 1
 Parameters: NONE
 */
 func Time(c echo.Context) error {
-	now := time.Now().Second()
+	now := time.Now().UnixMilli()
 
-	return c.JSON(http.StatusOK, map[string]int{
+	return c.JSON(http.StatusOK, map[string]int64{
 		"serverTime": now,
 	})
-
 }

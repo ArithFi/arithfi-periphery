@@ -11,7 +11,5 @@ Weight: 1
 Parameters: NONE
 */
 func Ping(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{
-		"message": "pong",
-	})
+	return c.JSON(http.StatusOK, map[string]string{})
 }
