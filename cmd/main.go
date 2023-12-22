@@ -16,7 +16,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	routes.Routes(e)
+	routes.FuturesRoutes(e)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
