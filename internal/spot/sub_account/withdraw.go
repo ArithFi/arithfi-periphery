@@ -13,6 +13,7 @@ type (
 
 /*
 Withdraw Withdraw
+TODO
 */
 func Withdraw(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{

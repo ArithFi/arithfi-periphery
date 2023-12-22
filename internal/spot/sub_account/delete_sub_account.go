@@ -13,6 +13,7 @@ type (
 
 /*
 DeleteSubAccount Delete a sub_account
+TODO
 */
 func DeleteSubAccount(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{

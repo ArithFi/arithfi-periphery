@@ -26,6 +26,7 @@ type (
 
 /*
 NewOrder Send in a new order.
+TODO
 */
 func NewOrder(c echo.Context) error {
 	// Obtain necessary order information and verify.

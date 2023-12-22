@@ -27,4 +27,6 @@ func FuturesRoutes(e *echo.Echo) {
 	e.GET("futures/balance", account_trades.GetBalance)
 	e.GET("futures/userTrades", account_trades.GetTradeList)
 	e.GET("futures/allOrders", account_trades.GetAllOrders)
+
+	// TODO Copy Trading
 }
