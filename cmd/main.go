@@ -17,6 +17,7 @@ func main() {
 
 	// Routes
 	routes.FuturesRoutes(e)
+	routes.SpotRoutes(e)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
