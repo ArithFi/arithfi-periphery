@@ -17,9 +17,6 @@ func FuturesRoutes(e *echo.Echo) {
 
 	// Account trades
 	e.GET("futures/order", account_trades.QueryOrder)
-	e.POST("futures/order", account_trades.NewOrder)
-	e.PUT("futures/order", account_trades.ModifyOrder)
-	e.DELETE("futures/order", account_trades.CancelOrder)
 	e.GET("futures/orderAmendment", account_trades.GetOrderAmendment)
 	e.GET("futures/openOrder", account_trades.QueryCurrentOpenOrder)
 	e.GET("futures/openOrders", account_trades.QueryCurrentOpenOrders)
@@ -27,6 +24,4 @@ func FuturesRoutes(e *echo.Echo) {
 	e.GET("futures/balance", account_trades.GetBalance)
 	e.GET("futures/userTrades", account_trades.GetTradeList)
 	e.GET("futures/allOrders", account_trades.GetAllOrders)
-
-	// TODO Copy Trading
 }
