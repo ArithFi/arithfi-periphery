@@ -15,6 +15,12 @@
 
 ## (Development) How to start?
 
+1. Normal
     ```shell
     go run cmd/main.go
     ```
+   
+2. Hot reload, (Recommend)
+   ```shell
+   air --build.cmd "go build -o bin/main cmd/main.go" --build.bin "./bin/main"
+   ```
