@@ -2,30 +2,30 @@ package account_trades
 
 import (
 	"context"
-	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
+	"log"
 	"net/http"
 )
 
 type (
 	NewOrderReqType struct {
-		OrderId         int    `json:"orderId" validate:"required"` // OrderId = PositionIndex
-		WalletAddress   string `json:"walletAddress" validate:"required"`
-		Symbol          string `json:"symbol" validate:"required"` // Symbol = Pair = Product
-		Side            string `json:"side" validate:"required"`   // Side, ['BUY', 'SELL']
-		PositionSide    string `json:"positionSide"`               // PositionSide, ['LONG', 'SHORT']
-		Type            string `json:"type" validate:"required"`   // Type, ['SELF', 'COPY']
-		CopyFromAddress string `json:"copyFromAddress"`
-		OpenPrice       int64  `json:"openPrice" validate:"required"`
-		MarkPrice       int64  `json:"markPrice"`
-		StopLossPrice   int64  `json:"stopLossPrice"`
-		TakeProfitPrice int64  `json:"takeProfitPrice"`
-		InitialMargin   int64  `json:"initialMargin" validate:"required"` // Initial Margin
-		Leverage        int64  `json:"leverage" validate:"required"`      // Leverage
-		Volume          int64  `json:"volume" validate:"required"`
-		OpenFees        int64  `json:"openFees"`
+		OrderId         int     `json:"orderId" validate:"required"` // OrderId = PositionIndex
+		WalletAddress   string  `json:"walletAddress" validate:"required"`
+		Symbol          string  `json:"symbol" validate:"required"` // Symbol = Pair = Product
+		Side            string  `json:"side" validate:"required"`   // Side, ['BUY', 'SELL']
+		PositionSide    string  `json:"positionSide"`               // PositionSide, ['LONG', 'SHORT']
+		Type            string  `json:"type" validate:"required"`   // Type, ['SELF', 'COPY']
+		CopyFromAddress string  `json:"copyFromAddress"`
+		OpenPrice       float64 `json:"openPrice" validate:"required"`
+		MarkPrice       float64 `json:"markPrice"`
+		StopLossPrice   float64 `json:"stopLossPrice"`
+		TakeProfitPrice float64 `json:"takeProfitPrice"`
+		InitialMargin   float64 `json:"initialMargin" validate:"required"` // Initial Margin
+		Leverage        int64   `json:"leverage" validate:"required"`      // Leverage
+		Volume          float64 `json:"volume" validate:"required"`
+		OpenFees        float64 `json:"openFees"`
 	}
 )
 
@@ -64,9 +64,13 @@ func NewOrder(c echo.Context) error {
 			{"volume", req.Volume},
 			{"open_fees", req.OpenFees},
 		})
-		fmt.Println(one)
+
+		log.Println("Inserted ID", one.InsertedID)
+
 		if err != nil {
-			fmt.Println(err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"msg": err.Error(),
+			})
 		}
 		// need to record the circulation of funds.
 		//
