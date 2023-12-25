@@ -1,6 +1,7 @@
 package account_trades
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -42,6 +43,13 @@ func NewOrder(c echo.Context) error {
 	// Transaction Fee Circulation -> Contract Account (Instant Settlement)
 	// Remaining Opening Amount -> Contract Account (Instantly Available)
 	// Contract Account -> Commission Account (only generates records, not immediately credited, manual trigger required)
+
+	var req NewOrderReqType
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	fmt.Println(req.OrderId)
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"msg": "ok",
