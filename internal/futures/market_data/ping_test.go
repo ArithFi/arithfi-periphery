@@ -18,7 +18,6 @@ func TestPing(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/futures/ping")
 	h := Ping(c)
 	if assert.NoError(t, h) {
 		assert.Equal(t, http.StatusOK, rec.Code)

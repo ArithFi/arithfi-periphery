@@ -9,8 +9,6 @@ services:
       - redis
     env_file:
       - .env
-    environment:
-      - REDIS_URI=redis:6379
 
   redis:
     image: "redis:alpine"

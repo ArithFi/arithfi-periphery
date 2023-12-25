@@ -20,6 +20,7 @@ type (
 		StopLossPrice   int64  `json:"stopLossPrice"`
 		TakeProfitPrice int64  `json:"takeProfitPrice"`
 		InitialMargin   int64  `json:"initialMargin" validate:"required"` // Initial Margin
+		Leverage        int64  `json:"leverage" validate:"required"`      // Leverage
 		Volume          int64  `json:"volume" validate:"required"`
 		OpenFees        int64  `json:"openFees"`
 	}

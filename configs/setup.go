@@ -2,6 +2,7 @@ package configs
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -32,10 +33,21 @@ func connectCache() *redis.Client {
 
 // connectDB function to connect to MongoDB
 func connectDB() *mongo.Client {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(EnvMongoURI()))
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	tslConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	opts := options.Client().ApplyURI(EnvMongoURI()).SetServerAPIOptions(serverAPI).SetTLSConfig(tslConfig)
+	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer func() {
+		if err = client.Disconnect(context.TODO()); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// Set timeout for the client
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
