@@ -22,5 +22,5 @@
    
 2. Hot reload, (Recommend)
    ```shell
-   air --build.cmd "go build -o bin/main cmd/main.go" --build.bin "./bin/main"
+   air
    ```

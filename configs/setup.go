@@ -3,7 +3,6 @@ package configs
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -40,14 +39,8 @@ func connectDB() *mongo.Client {
 	opts := options.Client().ApplyURI(EnvMongoURI()).SetServerAPIOptions(serverAPI).SetTLSConfig(tslConfig)
 	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to connect to MongoDB", err)
 	}
-
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			log.Fatal(err)
-		}
-	}()
 
 	// Set timeout for the client
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -56,9 +49,9 @@ func connectDB() *mongo.Client {
 	// Ping the database
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to ping MongoDB", err)
 	}
-	fmt.Println("Connected to MongoDB")
+	log.Println("Connected to MongoDB")
 	return client
 }
 
