@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 )
 
 func main() {
@@ -22,6 +23,7 @@ func main() {
 	}
 
 	defer func() {
+		log.Println("Disconnecting from MongoDB")
 		if err = client.Disconnect(context.TODO()); err != nil {
 			panic(err)
 		}

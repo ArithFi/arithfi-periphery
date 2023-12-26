@@ -3,6 +3,8 @@ package configs
 import (
 	"context"
 	"crypto/tls"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -11,14 +13,16 @@ import (
 )
 
 var (
-	DB    *mongo.Client
-	CACHE *redis.Client
+	MONGODB *mongo.Client
+	CACHE   *redis.Client
+	MYSQL   *sql.DB
 )
 
 // init function to initialize the MongoDB client and the Redis client
 func init() {
-	DB = connectDB()
+	MONGODB = connectMongoDB()
 	CACHE = connectCache()
+	MYSQL = connectMysql()
 }
 
 func connectCache() *redis.Client {
@@ -30,8 +34,8 @@ func connectCache() *redis.Client {
 	return rdb
 }
 
-// connectDB function to connect to MongoDB
-func connectDB() *mongo.Client {
+// connectMongoDB function to connect to MongoDB
+func connectMongoDB() *mongo.Client {
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	tslConfig := &tls.Config{
 		InsecureSkipVerify: true,
@@ -57,6 +61,18 @@ func connectDB() *mongo.Client {
 
 // GetCollection function to get database collections
 func GetCollection(collectionName string) *mongo.Collection {
-	collection := DB.Database("periphery").Collection(collectionName)
+	collection := MONGODB.Database("periphery").Collection(collectionName)
 	return collection
+}
+
+func connectMysql() *sql.DB {
+	db, err := sql.Open("mysql", EnvMysqlURI())
+	if err != nil {
+		log.Fatal("Failed to connect to Mysql", err)
+	}
+	if err := db.Ping(); err != nil {
+		log.Fatalf("failed to ping: %v", err)
+	}
+	log.Println("Successfully connected to Mysql!")
+	return db
 }
