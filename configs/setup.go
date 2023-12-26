@@ -31,6 +31,11 @@ func connectCache() *redis.Client {
 		Password: "",
 		DB:       0,
 	})
+
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		log.Fatal("Failed to ping Redis: ", err)
+	}
+	log.Println("Connected to Redis!")
 	return rdb
 }
 
@@ -53,7 +58,7 @@ func connectMongoDB() *mongo.Client {
 	// Ping the database
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal("Failed to ping MongoDB", err)
+		log.Fatal("Failed to ping MongoDB: ", err)
 	}
 	log.Println("Connected to MongoDB")
 	return client
@@ -71,9 +76,9 @@ func connectMysql() *sql.DB {
 		log.Fatal("Failed to connect to Mysql", err)
 	}
 	if err := db.Ping(); err != nil {
-		log.Fatalf("failed to ping: %v", err)
+		log.Fatal("Failed to ping Mysql: ", err)
 	}
-	log.Println("Successfully connected to Mysql!")
+	log.Println("Connected to Mysql")
 
 	db.SetConnMaxLifetime(3 * time.Minute)
 	db.SetMaxOpenConns(10)
