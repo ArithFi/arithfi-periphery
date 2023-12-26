@@ -8,8 +8,8 @@ import (
 
 func FuturesRoutes(e *echo.Echo) {
 	// Market data
-	e.GET("api/ping", market_data.Ping)
-	e.GET("api/time", market_data.Time)
+	e.GET("fapi/ping", market_data.Ping)
+	e.GET("fapi/time", market_data.Time)
 	//e.GET("exchangeInfo", market_data.ExchangeInfo)
 	//e.GET("kline", market_data.Kline)
 	//e.GET("ticker/24hr", market_data.Ticker24hr)
