@@ -6,10 +6,7 @@ import (
 	"log"
 )
 
-// 这是一个脚本，用于同步ArithFi的数据库，并且建立新的表结构
-
-// 不需要在运行时输入参数
-
+// main function to async mysql => mongoDB
 func main() {
 	log.Println("Async Works Start!")
 	err := mysql.MYSQL.Ping()
