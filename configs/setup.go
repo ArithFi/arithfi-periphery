@@ -74,5 +74,9 @@ func connectMysql() *sql.DB {
 		log.Fatalf("failed to ping: %v", err)
 	}
 	log.Println("Successfully connected to Mysql!")
+
+	db.SetConnMaxLifetime(3 * time.Minute)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 	return db
 }
