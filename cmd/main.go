@@ -14,48 +14,17 @@ type (
 )
 
 func main() {
-	// Hosts
-	hosts := map[string]*Host{}
-
-	futures := echo.New()
+	e := echo.New()
 
 	// Middleware
-	futures.Use(middleware.Logger())
-	futures.Use(middleware.Recover())
-	futures.Use(middleware.Gzip())
-	futures.Use(middleware.CORS())
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.Gzip())
+	e.Use(middleware.CORS())
 
 	// Routes
-	routes.FuturesRoutes(futures)
-
-	hosts["fapi.localhost:8080"] = &Host{futures}
-
-	spot := echo.New()
-
-	// Middleware
-	spot.Use(middleware.Logger())
-	spot.Use(middleware.Recover())
-	spot.Use(middleware.Gzip())
-	spot.Use(middleware.CORS())
-
-	routes.SpotRoutes(spot)
-
-	hosts["api.localhost:8080"] = &Host{spot}
-
-	e := echo.New()
-	e.Any("/*", func(c echo.Context) (err error) {
-		req := c.Request()
-		res := c.Response()
-		host := hosts[req.Host]
-
-		if host == nil {
-			err = echo.ErrNotFound
-		} else {
-			host.Echo.ServeHTTP(res, req)
-		}
-
-		return
-	})
+	routes.FuturesRoutes(e)
+	routes.SpotRoutes(e)
 
 	e.Logger.Fatal(e.Start("localhost:8080"))
 }

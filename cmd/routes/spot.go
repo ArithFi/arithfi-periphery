@@ -8,16 +8,16 @@ import (
 
 func SpotRoutes(e *echo.Echo) {
 	// Sub Account, off chain
-	e.GET("sub_account", sub_account.QuerySubAccount)
-	e.GET("sub_account/status", sub_account.GetSubAccountStatus)
-	e.GET("sub_account/account_snapshot", sub_account.DailyAccountSnapshot)
-	e.GET("sub_account/deposit/history", sub_account.GetDepositHistory)
-	e.GET("sub_account/withdraw/history", sub_account.GetWithdrawHistory)
-	e.GET("sub_account/assets", sub_account.GetUserAssets)
-	e.GET("sub_account/transfer/history", sub_account.GetTransferHistory)
+	e.GET("api/sub_account", sub_account.QuerySubAccount)
+	e.GET("api/sub_account/status", sub_account.GetSubAccountStatus)
+	e.GET("api/sub_account/account_snapshot", sub_account.DailyAccountSnapshot)
+	e.GET("api/sub_account/deposit/history", sub_account.GetDepositHistory)
+	e.GET("api/sub_account/withdraw/history", sub_account.GetWithdrawHistory)
+	e.GET("api/sub_account/assets", sub_account.GetUserAssets)
+	e.GET("api/sub_account/transfer/history", sub_account.GetTransferHistory)
 
 	// Wallet, on chain
-	e.GET("system/status", wallet.GetSystemStatus)
-	e.GET("wallet/assets", wallet.GetWalletAssetOnChain)
-	e.GET("wallet/status", wallet.GetWalletStatus)
+	e.GET("api/system/status", wallet.GetSystemStatus)
+	e.GET("api/wallet/assets", wallet.GetWalletAssetOnChain)
+	e.GET("api/wallet/status", wallet.GetWalletStatus)
 }
