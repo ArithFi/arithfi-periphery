@@ -1,16 +1,16 @@
 package account_trades
 
 import (
-	"github.com/arithfi/arithfi-periphery/configs"
+	mongo2 "github.com/arithfi/arithfi-periphery/configs/mongo"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
 
-var futures_order_collection *mongo.Collection = configs.GetCollection("futures_order")
-var futures_tx_collection *mongo.Collection = configs.GetCollection("futures_tx")
-var futures_tokentxn_collection *mongo.Collection = configs.GetCollection("futures_tokentxn")
-var futures_user_collection *mongo.Collection = configs.GetCollection("user")
+var futures_order_collection *mongo.Collection = mongo2.GetCollection("futures_order")
+var futures_tx_collection *mongo.Collection = mongo2.GetCollection("futures_tx")
+var futures_tokentxn_collection *mongo.Collection = mongo2.GetCollection("futures_tokentxn")
+var futures_user_collection *mongo.Collection = mongo2.GetCollection("user")
 
 type Event struct {
 	CreateTime           string `json:"create_time" form:"create_time" query:"create_time"`

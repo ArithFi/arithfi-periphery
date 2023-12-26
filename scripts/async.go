@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/arithfi/arithfi-periphery/configs"
 	_ "github.com/arithfi/arithfi-periphery/configs"
+	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"log"
 )
 
@@ -12,12 +12,12 @@ import (
 
 func main() {
 	log.Println("Async Works Start!")
-	err := configs.MYSQL.Ping()
+	err := mysql.MYSQL.Ping()
 	if err != nil {
 		return
 	}
 	// sql 查询 f_future_trading 表
-	rows, err := configs.MYSQL.Query("select ID from f_future_trading limit 10")
+	rows, err := mysql.MYSQL.Query("select ID from f_future_trading limit 10")
 	if err != nil {
 		return
 	}
