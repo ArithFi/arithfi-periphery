@@ -36,12 +36,11 @@ func UpdateDailyDepositWithdrawMetrics(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "success",
-		"date":    date,
 	})
 }
 
 func handleWithdraw(from string, to string, date string) {
-	withdrawRows, err := mysql.MYSQL.Query(`SELECT walletAddress, SUM(amount), COUNT(ordertype)
+	rows, err := mysql.MYSQL.Query(`SELECT walletAddress, SUM(amount), COUNT(ordertype)
   FROM deposit_withdrawal
   WHERE CONVERT_TZ(_createTime, '+00:00', '+08:00') >= ?
     AND CONVERT_TZ(_createTime, '+00:00', '+08:00') <= ?
@@ -50,12 +49,12 @@ func handleWithdraw(from string, to string, date string) {
 	if err != nil {
 		return
 	}
-	defer withdrawRows.Close()
-	for withdrawRows.Next() {
+	defer rows.Close()
+	for rows.Next() {
 		var walletAddress string
 		var withdrawAmount float64
 		var withdrawCounts int64
-		if err := withdrawRows.Scan(&walletAddress, &withdrawAmount, &withdrawCounts); err != nil {
+		if err := rows.Scan(&walletAddress, &withdrawAmount, &withdrawCounts); err != nil {
 			return
 		}
 
@@ -71,7 +70,7 @@ func handleWithdraw(from string, to string, date string) {
 }
 
 func handleDeposit(from string, to string, date string) {
-	depositRows, err := mysql.MYSQL.Query(`SELECT walletAddress, SUM(amount), COUNT(ordertype)
+	rows, err := mysql.MYSQL.Query(`SELECT walletAddress, SUM(amount), COUNT(ordertype)
   FROM deposit_withdrawal
   WHERE CONVERT_TZ(_createTime, '+00:00', '+08:00') >= ?
     AND CONVERT_TZ(_createTime, '+00:00', '+08:00') <= ?
@@ -80,16 +79,16 @@ func handleDeposit(from string, to string, date string) {
 	if err != nil {
 		return
 	}
-	defer depositRows.Close()
-	for depositRows.Next() {
+	defer rows.Close()
+	for rows.Next() {
 		var walletAddress string
 		var depositAmount float64
 		var depositCounts int64
-		if err := depositRows.Scan(&walletAddress, &depositAmount, &depositCounts); err != nil {
+		if err := rows.Scan(&walletAddress, &depositAmount, &depositCounts); err != nil {
 			return
 		}
 
-		_, err := mysql.MYSQL.Exec(`INSERT INTO b_daily_offchain_deposit_withdraw_metrics (wallet, date, deposit_amount, deposit_counts)
+		_, err := mysql.MYSQL.Exec(`INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, deposit_amount, deposit_counts)
 				VALUES (?, ?, ?, ?)
 				ON DUPLICATE KEY UPDATE
 				deposit_amount = deposit_amount,

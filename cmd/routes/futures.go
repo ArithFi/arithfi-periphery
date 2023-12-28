@@ -12,6 +12,6 @@ func FuturesRoutes(e *echo.Echo) {
 	e.GET("fapi/time", market_data.Time)
 
 	e.POST("fapi/update_daily_deposit_withdraw_metrics", summary.UpdateDailyDepositWithdrawMetrics)
-	e.POST("fapi/update_daily_destroy_metrics", summary.UpdateDailyFuturesDestroyMetrics)
+	e.POST("fapi/update_daily_burn_metrics", summary.UpdateDailyFuturesBurnMetrics)
 	e.POST("fapi/update_daily_futures_metrics", summary.UpdateDailyFuturesMetrics)
 }
