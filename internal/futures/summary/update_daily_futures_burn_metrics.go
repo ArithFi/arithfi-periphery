@@ -5,6 +5,7 @@ import (
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strings"
 )
 
 type (
@@ -46,20 +47,34 @@ GROUP BY walletAddress, kolAddress, mode;`, from, to)
 		return
 	}
 	defer rows.Close()
+
+	var values []string
+	var args []interface{}
+	insertQuery := `INSERT INTO b_daily_offchain_futures_metrics (walletAddress, kolAddress, mode, date, net_burn_amount)
+	VALUES %s ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount);`
+
 	for rows.Next() {
 		var walletAddress, kolAddress, mode string
-		var net_burn_amount float64
-		err = rows.Scan(&walletAddress, &kolAddress, &mode, &net_burn_amount)
+		var netBurnAmount float64
+		err = rows.Scan(&walletAddress, &kolAddress, &mode, &netBurnAmount)
 		if err != nil {
 			return
 		}
-		fmt.Println(walletAddress, kolAddress, mode, net_burn_amount)
+		fmt.Println(walletAddress, kolAddress, mode, netBurnAmount)
 
-		_, err2 := mysql.MYSQL.Exec(`INSERT INTO b_daily_offchain_futures_metrics (walletAddress, kolAddress, mode, date, net_burn_amount)
-VALUES (?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount);`, walletAddress, kolAddress, mode, date, net_burn_amount)
-		if err2 != nil {
-			return
-		}
+		values = append(values, "(?, ?, ?, ?, ?)")
+		args = append(args, walletAddress, kolAddress, mode, date, netBurnAmount)
 	}
+
+	if len(values) == 0 {
+		return
+	}
+
+	insertQuery = fmt.Sprintf(insertQuery, strings.Join(values, ","))
+	_, err = mysql.MYSQL.Exec(insertQuery, args...)
+	if err != nil {
+		return
+	}
+
+	return
 }

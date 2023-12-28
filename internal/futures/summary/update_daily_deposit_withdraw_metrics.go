@@ -1,9 +1,11 @@
 package summary
 
 import (
+	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strings"
 )
 
 // 每日的充值和提现汇总数据
@@ -50,6 +52,12 @@ func handleWithdraw(from string, to string, date string) {
 		return
 	}
 	defer rows.Close()
+
+	var values []string
+	var args []interface{}
+	insertQuery := `INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, withdraw_amount, withdraw_counts)
+	VALUES %s ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount);`
+
 	for rows.Next() {
 		var walletAddress string
 		var withdrawAmount float64
@@ -58,15 +66,21 @@ func handleWithdraw(from string, to string, date string) {
 			return
 		}
 
-		_, err := mysql.MYSQL.Exec(`INSERT INTO b_daily_offchain_deposit_withdraw_metrics (wallet, date, withdraw_amount, withdraw_counts)
-				VALUES (?, ?, ?, ?)
-				ON DUPLICATE KEY UPDATE
-				withdraw_amount = withdraw_amount,
-				withdraw_counts = withdraw_counts`, walletAddress, date, withdrawAmount, withdrawCounts)
-		if err != nil {
-			return
-		}
+		values = append(values, "(?, ?, ?, ?)")
+		args = append(args, walletAddress, date, withdrawAmount, withdrawCounts)
 	}
+
+	if len(values) == 0 {
+		return
+	}
+
+	insertQuery = fmt.Sprintf(insertQuery, strings.Join(values, ","))
+	_, err = mysql.MYSQL.Exec(insertQuery, args...)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func handleDeposit(from string, to string, date string) {
@@ -80,6 +94,12 @@ func handleDeposit(from string, to string, date string) {
 		return
 	}
 	defer rows.Close()
+
+	var values []string
+	var args []interface{}
+	insertQuery := `INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, deposit_amount, deposit_counts)
+	VALUES %s ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount);`
+
 	for rows.Next() {
 		var walletAddress string
 		var depositAmount float64
@@ -88,13 +108,19 @@ func handleDeposit(from string, to string, date string) {
 			return
 		}
 
-		_, err := mysql.MYSQL.Exec(`INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, deposit_amount, deposit_counts)
-				VALUES (?, ?, ?, ?)
-				ON DUPLICATE KEY UPDATE
-				deposit_amount = deposit_amount,
-				deposit_counts = deposit_counts`, walletAddress, date, depositAmount, depositCounts)
-		if err != nil {
-			return
-		}
+		values = append(values, "(?, ?, ?, ?)")
+		args = append(args, walletAddress, date, depositAmount, depositCounts)
 	}
+
+	if len(values) == 0 {
+		return
+	}
+
+	insertQuery = fmt.Sprintf(insertQuery, strings.Join(values, ","))
+	_, err = mysql.MYSQL.Exec(insertQuery, args...)
+	if err != nil {
+		return
+	}
+
+	return
 }
