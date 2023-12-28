@@ -3,14 +3,13 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"os"
-
+	"github.com/arithfi/arithfi-periphery/configs"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 )
 
 func main() {
-	db, err := sql.Open("mysql", os.Getenv("DSN"))
+	db, err := sql.Open("mysql", configs.EnvMysqlURI())
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}
