@@ -57,7 +57,7 @@ func handleWithdraw(from string, to string, date string) {
 	var values []string
 	var args []interface{}
 	insertQuery := `INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, withdraw_amount, withdraw_counts)
-	VALUES %s ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount);`
+	VALUES %s ON DUPLICATE KEY UPDATE withdraw_amount = VALUES(withdraw_amount) AND withdraw_counts = VALUES(withdraw_counts);`
 
 	for rows.Next() {
 		var walletAddress string
@@ -99,7 +99,7 @@ func handleDeposit(from string, to string, date string) {
 	var values []string
 	var args []interface{}
 	insertQuery := `INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, deposit_amount, deposit_counts)
-	VALUES %s ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount);`
+	VALUES %s ON DUPLICATE KEY UPDATE deposit_amount = VALUES(deposit_amount) AND deposit_counts = VALUES(deposit_counts);`
 
 	for rows.Next() {
 		var walletAddress string
