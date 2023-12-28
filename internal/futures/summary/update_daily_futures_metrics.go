@@ -8,6 +8,13 @@ import (
 )
 
 // 每日的期货数据，用户、用户类型、交易类型、KOL、新增交易笔数、新增交易规模、净销毁数量
+/*
+SELECT walletAddress, kolAddress, COUNT(positionIndex), mode, SUM( margin * leverage) positionSize FROM f_future_trading
+WHERE CONVERT_TZ(timeStamp, '+00:00', '+08:00') >= '2023-12-01 00:00:00'
+  AND CONVERT_TZ(timeStamp, '+00:00', '+08:00') < '2023-12-02 00:00:00'
+  AND orderType in ("MARKET_ORDER_FEE", "LIMIT_ORDER_FEE")
+GROUP BY walletAddress, kolAddress, mode;
+*/
 
 type (
 	UpdateDailyMetricsReqType struct {
