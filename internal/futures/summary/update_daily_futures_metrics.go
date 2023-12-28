@@ -29,6 +29,7 @@ func UpdateDailyFuturesMetrics(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "success",
+		"date":    date,
 	})
 }
 
