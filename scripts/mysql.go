@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("failed to ping: %v", err)
 	}
 
-	log.Println("Successfully connected to PlanetScale!")
+	log.Println("Successfully connected to Mysql!")
 
 	// sql 查询 f_future_trading 表
 	rows, err := db.Query("SELECT count(*) FROM f_future_trading")
