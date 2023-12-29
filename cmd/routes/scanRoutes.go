@@ -6,6 +6,7 @@ import (
 )
 
 func ScanRoutes(e *echo.Echo) {
-	// scan erc20_transfer_bsc
 	e.GET("scan/erc20_transfer_bsc", scan.ERC20TransferBSC)
+	e.GET("scan/deposit_withdrawal", scan.DepositWithdrawal)
+	e.GET("scan/f_future_trading", scan.FFutureTrading)
 }
