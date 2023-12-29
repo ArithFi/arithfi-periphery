@@ -26,17 +26,7 @@ func EnvMysqlURI() string {
 	return url
 }
 
-func EnvRedisAddr() string {
-	addr := os.Getenv("REDIS_ADDR")
-	return addr
-}
-
-func EnvRedisPassword() string {
-	password := os.Getenv("REDIS_PASSWORD")
-	return password
-}
-
-func EnvBscScanAPI() string {
-	url := os.Getenv("BSC_SCAN_API")
+func EnvRedisURL() string {
+	url := os.Getenv("REDIS_URL")
 	return url
 }
