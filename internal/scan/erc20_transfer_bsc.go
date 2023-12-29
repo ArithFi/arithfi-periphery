@@ -30,6 +30,7 @@ LIMIT 100
 		return err
 	}
 	defer query.Close()
+	var newLastTimestamp int
 	for query.Next() {
 		var fromAddress, toAddress string
 		var timestamp int
@@ -41,12 +42,14 @@ LIMIT 100
 		fmt.Println("fromAddress:", fromAddress)
 		fmt.Println("toAddress:", toAddress)
 		fmt.Println("timestamp:", timestamp)
+		newLastTimestamp = timestamp
 		fmt.Println("value:", value)
 
 		newFromBalance := cache.CACHE.IncrByFloat(ctx, "BALANCE#"+fromAddress, -value)
 		newToBalance := cache.CACHE.IncrByFloat(ctx, "BALANCE#"+toAddress, value)
 
-		date := time.Unix(int64(timestamp), 0).Format("2006-01-02")
+		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
+		date := time.Unix(int64(timestamp)+8*60*60, 0).Format("2006-01-02")
 		updateBalanceSnapshot(fromAddress, date, newFromBalance.Val())
 		updateBalanceSnapshot(toAddress, date, newToBalance.Val())
 
@@ -56,6 +59,9 @@ LIMIT 100
 			updateDailySellMetrics(fromAddress, date, value)
 		}
 	}
+
+	// 更新最后一次扫描的时间
+	cache.CACHE.Set(ctx, "erc20_transfer_bsc_last_timestamp", newLastTimestamp, 0)
 
 	return nil
 }
