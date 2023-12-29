@@ -29,7 +29,7 @@ LIMIT 100
 		return err
 	}
 	defer query.Close()
-
+	var newLastTimestamp int
 	for query.Next() {
 		var product string
 		var positionIndex int64
@@ -50,6 +50,7 @@ LIMIT 100
 		if err != nil {
 			return err
 		}
+		newLastTimestamp = timeStamp
 
 		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
 		date := time.Unix(int64(timeStamp)+8*60*60, 0).Format("2006-01-02")
@@ -62,7 +63,7 @@ LIMIT 100
 			handleBurn(mode, sellValue, margin, walletAddress, kolAddress, date)
 		}
 	}
-
+	cache.CACHE.Set(ctx, "f_future_trading_last_timestamp", newLastTimestamp, 0)
 	return nil
 }
 
