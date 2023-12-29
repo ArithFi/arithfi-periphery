@@ -22,9 +22,7 @@ func main() {
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
 
-	// Routes
-	routes.FuturesRoutes(e)
-	routes.SpotRoutes(e)
+	routes.ScanRoutes(e)
 
 	e.Logger.Fatal(e.Start("localhost:8080"))
 }

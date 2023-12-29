@@ -10,14 +10,14 @@ import (
 
 func main() {
 	// Start and end dates for the range
-	startDate := time.Date(2023, 12, 1, 0, 0, 0, 0, time.UTC)
-	endDate := time.Date(2023, 12, 30, 0, 0, 0, 0, time.UTC)
+	startDate := time.Date(2023, 9, 25, 0, 0, 0, 0, time.UTC)
+	endDate := time.Date(2023, 9, 30, 0, 0, 0, 0, time.UTC)
 
 	// Iterate over each day in the range
 	for date := startDate; date.Before(endDate); date = date.AddDate(0, 0, 1) {
-		//url := "http://localhost:8080/fapi/update_daily_deposit_withdraw_metrics"
+		url := "http://localhost:8080/fapi/update_daily_deposit_withdraw_metrics"
 		//url := "http://localhost:8080/fapi/update_daily_burn_metrics"
-		url := "http://localhost:8080/fapi/update_daily_futures_metrics"
+		//url := "http://localhost:8080/fapi/update_daily_futures_metrics"
 		//url := "http://localhost:8080/api/summary/update_daily_trade_metrics"
 		method := "POST"
 
