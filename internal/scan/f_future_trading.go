@@ -39,7 +39,8 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 	for query.Next() {
 		var product string
 		var positionIndex int64
-		var timeStamp, id int
+		var timeStamp string
+		var id int
 		var leverage int64
 		var orderType string
 		var mode string
@@ -56,11 +57,16 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 		}
 		newLastId = id
 
-		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
-		date := time.Unix(int64(timeStamp)+8*60*60, 0).Format("2006-01-02")
-		log.Println("date:", date)
+		loc, _ := time.LoadLocation("Local")
+		date, _ := time.ParseInLocation("2006-01-02 15:04:05", timeStamp, loc)
+
+		// 将时间对象转换为北京时间 (+8)
+		beijingLoc, _ := time.LoadLocation("Asia/Shanghai")
+		beijingDate := date.In(beijingLoc)
+		beijingDateStr := beijingDate.Format("2006-01-02")
+		log.Println("date:", beijingDateStr)
 		if orderType == "MARKET_ORDER_FEE" || orderType == "LIMIT_ORDER_FEE" {
-			_, err = handleNewOrderStmt.Exec(date, walletAddress, mode, kolAddress, 1, volume)
+			_, err = handleNewOrderStmt.Exec(beijingDateStr, walletAddress, mode, kolAddress, 1, volume)
 			if err != nil {
 				if rbErr := tx.Rollback(); rbErr != nil {
 					log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
@@ -68,7 +74,7 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 				return err
 			}
 		} else if orderType == "MARKET_CLOSE_FEE" || orderType == "TP_ORDER_FEE" || orderType == "SL_ORDER_FEE" || orderType == "MARKET_LIQUIDATION" {
-			_, err = handleBurnStmt.Exec(date, walletAddress, mode, kolAddress, sellValue-margin)
+			_, err = handleBurnStmt.Exec(beijingDateStr, walletAddress, mode, kolAddress, sellValue-margin)
 			if err != nil {
 				if rbErr := tx.Rollback(); rbErr != nil {
 					log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
