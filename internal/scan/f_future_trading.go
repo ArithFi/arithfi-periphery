@@ -4,13 +4,12 @@ import (
 	"context"
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
-	"github.com/labstack/echo/v4"
 	"log"
 	"time"
 )
 
 // FFutureTrading 扫描这个表
-func FFutureTrading(c echo.Context) error {
+func FFutureTrading() error {
 	var ctx = context.Background()
 	lastTimestamp := cache.CACHE.Get(ctx, "f_future_trading_last_timestamp")
 	if lastTimestamp == nil {
@@ -23,7 +22,7 @@ func FFutureTrading(c echo.Context) error {
 FROM f_future_trading 
 WHERE timestamp > ? 
 ORDER By timestamp 
-LIMIT 100
+LIMIT 200
 `, lastTimestamp.Val())
 	if err != nil {
 		return err
@@ -33,10 +32,10 @@ LIMIT 100
 	tx, err := mysql.MYSQL.Begin()
 	handleNewOrderStmt, err := tx.Prepare(`INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, new_position_counts, new_position_size)
 VALUES (?, ?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE new_position_counts = new_position_counts + 1, new_position_size = new_position_size + ?`)
+ON DUPLICATE KEY UPDATE new_position_counts = new_position_counts + VALUES(new_position_counts), new_position_size = new_position_size + VALUES(new_position_size)`)
 	handleBurnStmt, err := tx.Prepare(`INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, net_burn_amount)
 VALUES (?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount)`)
+ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amount`)
 	for query.Next() {
 		var product string
 		var positionIndex int64

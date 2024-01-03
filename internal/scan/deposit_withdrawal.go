@@ -4,13 +4,12 @@ import (
 	"context"
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
-	"github.com/labstack/echo/v4"
 	"log"
 	"time"
 )
 
 // DepositWithdrawal 扫描这个表的事件
-func DepositWithdrawal(c echo.Context) error {
+func DepositWithdrawal() error {
 	var ctx = context.Background()
 	lastTimestamp := cache.CACHE.Get(ctx, "deposit_withdrawal_last_timestamp")
 	if lastTimestamp == nil {
@@ -24,7 +23,7 @@ FROM deposit_withdrawal
 WHERE timestamp > ?
 AND status = 1
 ORDER By timestamp 
-LIMIT 100
+LIMIT 200
 `, lastTimestamp.Val())
 	if err != nil {
 		return err

@@ -4,13 +4,12 @@ import (
 	"context"
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
-	"github.com/labstack/echo/v4"
 	"log"
 	"time"
 )
 
 // ERC20TransferBSC 扫描这个表的事件
-func ERC20TransferBSC(c echo.Context) error {
+func ERC20TransferBSC() error {
 	var ctx = context.Background()
 	lastTimestamp := cache.CACHE.Get(ctx, "erc20_transfer_bsc_last_timestamp")
 	if lastTimestamp == nil {
@@ -23,7 +22,7 @@ func ERC20TransferBSC(c echo.Context) error {
 FROM erc20_transfer_bsc 
 WHERE timestamp > ? 
 ORDER By timestamp 
-LIMIT 100
+LIMIT 200
 `, lastTimestamp.Val())
 	if err != nil {
 		return err

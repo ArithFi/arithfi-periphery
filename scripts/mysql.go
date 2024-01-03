@@ -37,7 +37,7 @@ func main() {
 	for rows.Next() {
 		var count int
 		if err := rows.Scan(&count); err != nil {
-			log.Fatalf("failed to scan: %v", err)
+			log.Fatalf("failed to worker: %v", err)
 		}
 		fmt.Println(count)
 	}
