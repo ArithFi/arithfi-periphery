@@ -11,19 +11,19 @@ import (
 // FFutureTrading 扫描这个表
 func FFutureTrading() error {
 	var ctx = context.Background()
-	lastTimestamp := cache.CACHE.Get(ctx, "f_future_trading_last_timestamp")
-	if lastTimestamp == nil {
-		lastTimestamp.SetVal("0")
+	lastId := cache.CACHE.Get(ctx, "f_future_trading_last_id")
+	if lastId == nil {
+		lastId.SetVal("0")
 	}
 
-	log.Println(lastTimestamp)
+	log.Println(lastId)
 
-	query, err := mysql.MYSQL.Query(`SELECT _id, product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress
+	query, err := mysql.MYSQL.Query(`SELECT _id, timeStamp, product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress
 FROM f_future_trading 
 WHERE _id > ? 
 ORDER By _id 
 LIMIT 200
-`, lastTimestamp.Val())
+`, lastId.Val())
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 		var walletAddress string
 		var kolAddress string
 
-		err := query.Scan(&id, &product, &positionIndex, &leverage, &orderType, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress)
+		err := query.Scan(&id, &timeStamp, &product, &positionIndex, &leverage, &orderType, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress)
 		if err != nil {
 			return err
 		}
