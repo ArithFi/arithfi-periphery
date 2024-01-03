@@ -30,3 +30,8 @@ func EnvRedisAddr() string {
 	url := os.Getenv("REDIS_URL")
 	return url
 }
+
+func EnvBscScanAPI() string {
+	url := os.Getenv("BSC_SCAN_API")
+	return url
+}
