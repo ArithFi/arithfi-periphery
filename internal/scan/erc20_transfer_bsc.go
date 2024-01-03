@@ -22,7 +22,7 @@ func ERC20TransferBSC() error {
 	query, err := mysql.MYSQL.Query(`SELECT from_address, to_address, timestamp, value
 FROM erc20_transfer_bsc 
 WHERE timestamp > ? 
-ORDER By timestamp 
+ORDER By timestamp
 LIMIT 200
 `, lastTimestamp.Val())
 	if err != nil {
@@ -32,8 +32,6 @@ LIMIT 200
 	newLastTimestamp := 0
 
 	tx, err := mysql.MYSQL.Begin()
-	updateBalanceSnapshotStmt, err := tx.Prepare(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, last_balance) VALUES (?, ?, ?)
-ON DUPLICATE KEY UPDATE last_balance = VALUES(last_balance)`)
 	updateDailyBuyMetricsStmt, err := tx.Prepare(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, buy_amount, buy_counts) VALUES (?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE buy_amount = VALUES(buy_amount) + buy_amount, buy_counts = VALUES(buy_counts) + buy_counts`)
 	updateDailySellMetricsStmt, err := tx.Prepare(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, sell_amount, sell_counts) VALUES (?, ?, ?, ?)
@@ -52,25 +50,8 @@ ON DUPLICATE KEY UPDATE sell_amount = VALUES(sell_amount) + sell_amount, sell_co
 		newLastTimestamp = timestamp
 		log.Println("value:", value)
 
-		newFromBalance := cache.CACHE.IncrByFloat(ctx, "BALANCE#"+fromAddress, -value)
-		newToBalance := cache.CACHE.IncrByFloat(ctx, "BALANCE#"+toAddress, value)
-
 		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
 		date := time.Unix(int64(timestamp)+8*60*60, 0).Format("2006-01-02")
-		_, err = updateBalanceSnapshotStmt.Exec(fromAddress, date, newFromBalance.Val())
-		if err != nil {
-			if rbErr := tx.Rollback(); rbErr != nil {
-				log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
-			}
-			return err
-		}
-		_, err = updateBalanceSnapshotStmt.Exec(toAddress, date, newToBalance.Val())
-		if err != nil {
-			if rbErr := tx.Rollback(); rbErr != nil {
-				log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
-			}
-			return err
-		}
 
 		if fromAddress == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
 			_, err = updateDailyBuyMetricsStmt.Exec(toAddress, date, value, 1)
