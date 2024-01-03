@@ -81,7 +81,7 @@ ON DUPLICATE KEY UPDATE last_balance = VALUES(last_balance)`, address, date, val
 func updateDailyBuyMetrics(address string, date string, value float64) {
 	_, err := mysql.MYSQL.Exec(`
 INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, buy_amount, buy_counts) VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE buy_amount = buy_amount + ?, buy_counts = buy_counts + 1
+ON DUPLICATE KEY UPDATE buy_amount = VALUES(buy_amount) + ?, buy_counts = VALUES(buy_counts) + 1
 `, address, date, value, 1, value, 1)
 	if err != nil {
 		log.Println("Failed to update buy metrics for", address, "on", date)
@@ -94,7 +94,7 @@ ON DUPLICATE KEY UPDATE buy_amount = buy_amount + ?, buy_counts = buy_counts + 1
 func updateDailySellMetrics(address string, date string, value float64) {
 	_, err := mysql.MYSQL.Exec(`
 INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, sell_amount, sell_counts) VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE sell_amount = sell_amount + ?, sell_counts = sell_counts + 1
+ON DUPLICATE KEY UPDATE sell_amount = VALUES(sell_amount) + ?, sell_counts = VALUES(sell_counts) + 1
 `, address, date, value, 1, value, 1)
 	if err != nil {
 		log.Println("Failed to update sell metrics for", address, "on", date)
