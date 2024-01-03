@@ -17,14 +17,14 @@ func FFutureTrading(c echo.Context) error {
 		lastTimestamp.SetVal("0")
 	}
 
-	fmt.Println("f_future_trading last timestamp:", lastTimestamp)
+	fmt.Println(lastTimestamp)
 
 	query, err := mysql.MYSQL.Query(`SELECT product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, availableBanlance, copyAccountBalance
 FROM f_future_trading 
 WHERE timestamp > ? 
 ORDER By timestamp 
 LIMIT 100
-`, lastTimestamp.String())
+`, lastTimestamp.Val())
 	if err != nil {
 		return err
 	}

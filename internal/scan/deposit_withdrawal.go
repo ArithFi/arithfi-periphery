@@ -18,7 +18,7 @@ func DepositWithdrawal(c echo.Context) error {
 		lastTimestamp.SetVal("0")
 	}
 
-	fmt.Println("deposit_withdrawal last timestamp:", lastTimestamp)
+	fmt.Println(lastTimestamp)
 
 	query, err := mysql.MYSQL.Query(`SELECT walletAddress, amount, timestamp, ordertype
 FROM deposit_withdrawal 
@@ -26,7 +26,7 @@ WHERE timestamp > ?
 AND status = 1
 ORDER By timestamp 
 LIMIT 100
-`, lastTimestamp.String())
+`, lastTimestamp.Val())
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ LIMIT 100
 // updateBalanceSnapshot 更新余额快照，便于每日归档
 func handleDeposit(walletAddress string, amount float64, date string) {
 	_, err := mysql.MYSQL.Exec(`INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, deposit_amount, deposit_counts) VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE deposit_amount = deposit_amount + ?, deposit_counts = deposit_counts + ?`, walletAddress, date, amount, 1, amount, 1)
+ON DUPLICATE KEY UPDATE deposit_amount = VALUES(deposit_amount) + ?, deposit_counts = VALUES(deposit_counts) + ?`, walletAddress, date, amount, 1, amount, 1)
 	if err != nil {
 		log.Println("Failed to updates deposit snapshot for", walletAddress, "on", date)
 		return
@@ -73,7 +73,7 @@ ON DUPLICATE KEY UPDATE deposit_amount = deposit_amount + ?, deposit_counts = de
 // updateDailyBuyMetrics 更新当天的够买数量和额度
 func handleWithdraw(walletAddress string, amount float64, date string) {
 	_, err := mysql.MYSQL.Exec(`INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, withdraw_amount, withdraw_counts) VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE withdraw_amount = withdraw_amount + ?, withdraw_counts = withdraw_counts + ?`, walletAddress, date, amount, 1, amount, 1)
+ON DUPLICATE KEY UPDATE withdraw_amount = VALUES(withdraw_amount) + ?, withdraw_counts = VALUES(withdraw_counts) + ?`, walletAddress, date, amount, 1, amount, 1)
 	if err != nil {
 		log.Println("Failed to update withdraw snapshot for", walletAddress, "on", date)
 		return
