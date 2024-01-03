@@ -18,7 +18,7 @@ func FFutureTrading() error {
 
 	log.Println(lastTimestamp)
 
-	query, err := mysql.MYSQL.Query(`SELECT _id, product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, availableBanlance, copyAccountBalance
+	query, err := mysql.MYSQL.Query(`SELECT _id, product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress
 FROM f_future_trading 
 WHERE _id > ? 
 ORDER By _id 
@@ -49,10 +49,8 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 		var sellValue float64
 		var walletAddress string
 		var kolAddress string
-		var availableBanlance float64
-		var copyAccountBalance float64
 
-		err := query.Scan(&id, &product, &positionIndex, &leverage, &orderType, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress, &availableBanlance, &copyAccountBalance)
+		err := query.Scan(&id, &product, &positionIndex, &leverage, &orderType, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress)
 		if err != nil {
 			return err
 		}
