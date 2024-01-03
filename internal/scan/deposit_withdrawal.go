@@ -5,7 +5,6 @@ import (
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -70,11 +69,7 @@ ON DUPLICATE KEY UPDATE withdraw_amount = VALUES(withdraw_amount) + withdraw_amo
 	if err != nil {
 		return err
 	}
-	lastTimestampNumber, err := strconv.Atoi(lastTimestamp.Val())
-	if err != nil {
-		lastTimestampNumber = 0
-	}
-	if newLastTimestamp > lastTimestampNumber {
+	if newLastTimestamp > 0 {
 		cache.CACHE.Set(ctx, "deposit_withdrawal_last_timestamp", newLastTimestamp, 0)
 	}
 

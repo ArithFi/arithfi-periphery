@@ -5,7 +5,6 @@ import (
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -75,14 +74,8 @@ ON DUPLICATE KEY UPDATE sell_amount = VALUES(sell_amount) + sell_amount, sell_co
 	if err != nil {
 		return err
 	}
-
-	lastTimestampNumber, err := strconv.Atoi(lastTimestamp.Val())
-	if err != nil {
-		lastTimestampNumber = 0
-	}
-	if newLastTimestamp > lastTimestampNumber {
+	if newLastTimestamp > 0 {
 		cache.CACHE.Set(ctx, "erc20_transfer_bsc_last_timestamp", newLastTimestamp, 0)
 	}
-
 	return nil
 }
