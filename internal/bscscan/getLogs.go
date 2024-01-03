@@ -14,11 +14,12 @@ type Result struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 	Result  []struct {
-		Address         string `json:"address"`
-		TimeStamp       string `json:"timeStamp"`
-		BlockNumber     string `json:"blockNumber"`
-		Data            string `json:"data"`
-		TransactionHash string `json:"transactionHash"`
+		Address         string   `json:"address"`
+		TimeStamp       string   `json:"timeStamp"`
+		BlockNumber     string   `json:"blockNumber"`
+		Data            string   `json:"data"`
+		TransactionHash string   `json:"transactionHash"`
+		Topics          []string `json:"topics"`
 	}
 }
 
