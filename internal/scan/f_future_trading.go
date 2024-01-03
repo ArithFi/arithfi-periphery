@@ -60,7 +60,7 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 		date := time.Unix(int64(timeStamp)+8*60*60, 0).Format("2006-01-02")
 		log.Println("date:", date)
 		if orderType == "MARKET_ORDER_FEE" || orderType == "LIMIT_ORDER_FEE" {
-			_, err = handleNewOrderStmt.Exec(date, walletAddress, mode, kolAddress, 1, volume, volume)
+			_, err = handleNewOrderStmt.Exec(date, walletAddress, mode, kolAddress, 1, volume)
 			if err != nil {
 				if rbErr := tx.Rollback(); rbErr != nil {
 					log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
