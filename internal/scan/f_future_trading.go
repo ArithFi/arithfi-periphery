@@ -2,11 +2,10 @@ package scan
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"github.com/labstack/echo/v4"
+	"log"
 	"time"
 )
 
@@ -18,7 +17,7 @@ func FFutureTrading(c echo.Context) error {
 		lastTimestamp.SetVal("0")
 	}
 
-	fmt.Println(lastTimestamp)
+	log.Println(lastTimestamp)
 
 	query, err := mysql.MYSQL.Query(`SELECT product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, availableBanlance, copyAccountBalance
 FROM f_future_trading 
@@ -32,6 +31,12 @@ LIMIT 100
 	defer query.Close()
 	var newLastTimestamp int
 	tx, err := mysql.MYSQL.Begin()
+	handleNewOrderStmt, err := tx.Prepare(`INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, new_position_counts, new_position_size)
+VALUES (?, ?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE new_position_counts = new_position_counts + 1, new_position_size = new_position_size + ?`)
+	handleBurnStmt, err := tx.Prepare(`INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, net_burn_amount)
+VALUES (?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount)`)
 	for query.Next() {
 		var product string
 		var positionIndex int64
@@ -56,13 +61,23 @@ LIMIT 100
 
 		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
 		date := time.Unix(int64(timeStamp)+8*60*60, 0).Format("2006-01-02")
-		fmt.Println("date:", date)
+		log.Println("date:", date)
 		if orderType == "MARKET_ORDER_FEE" || orderType == "LIMIT_ORDER_FEE" {
-			// 处理每个用户每天开单的数据汇总，新增仓位，开单数量
-			handleNewOrder(tx, mode, date, walletAddress, kolAddress, volume)
+			_, err = handleNewOrderStmt.Exec(date, walletAddress, mode, kolAddress, 1, volume, volume)
+			if err != nil {
+				if rbErr := tx.Rollback(); rbErr != nil {
+					log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
+				}
+				return err
+			}
 		} else if orderType == "MARKET_CLOSE_FEE" || orderType == "TP_ORDER_FEE" || orderType == "SL_ORDER_FEE" || orderType == "MARKET_LIQUIDATION" {
-			// 处理每个每天的净销毁
-			handleBurn(tx, mode, sellValue, margin, walletAddress, kolAddress, date)
+			_, err = handleBurnStmt.Exec(date, walletAddress, mode, kolAddress, sellValue-margin)
+			if err != nil {
+				if rbErr := tx.Rollback(); rbErr != nil {
+					log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
+				}
+				return err
+			}
 		}
 	}
 	err = tx.Commit()
@@ -72,31 +87,4 @@ LIMIT 100
 
 	cache.CACHE.Set(ctx, "f_future_trading_last_timestamp", newLastTimestamp, 0)
 	return nil
-}
-
-func handleNewOrder(tx *sql.Tx, mode string, date string, walletAddress string, kolAddress string, volume float64) {
-	_, err := tx.Exec(`
-INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, new_position_counts, new_position_size)
-VALUES (?, ?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE new_position_counts = new_position_counts + 1, new_position_size = new_position_size + ?
-`, date, walletAddress, mode, kolAddress, 1, volume, volume)
-	if err != nil {
-		fmt.Println("handleNewOrder err:", err)
-		return
-	}
-	fmt.Println("handleNewOrder ok")
-}
-
-func handleBurn(tx *sql.Tx, mode string, sellValue float64, margin float64, walletAddress string, kolAddress string, date string) {
-	var netBurnAmount = sellValue - margin
-	_, err := tx.Exec(`
-INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, net_burn_amount)
-VALUES (?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount)
-`, date, walletAddress, mode, kolAddress, netBurnAmount)
-	if err != nil {
-		fmt.Println("handleBurn err:", err)
-		return
-	}
-	fmt.Println("handleBurn ok")
 }

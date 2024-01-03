@@ -2,8 +2,6 @@ package scan
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"github.com/labstack/echo/v4"
@@ -19,7 +17,7 @@ func ERC20TransferBSC(c echo.Context) error {
 		lastTimestamp.SetVal("0")
 	}
 
-	fmt.Println(lastTimestamp)
+	log.Println(lastTimestamp)
 
 	query, err := mysql.MYSQL.Query(`SELECT from_address, to_address, timestamp, value
 FROM erc20_transfer_bsc 
@@ -34,6 +32,12 @@ LIMIT 100
 	var newLastTimestamp int
 
 	tx, err := mysql.MYSQL.Begin()
+	updateBalanceSnapshotStmt, err := tx.Prepare(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, last_balance) VALUES (?, ?, ?)
+ON DUPLICATE KEY UPDATE last_balance = VALUES(last_balance)`)
+	updateDailyBuyMetricsStmt, err := tx.Prepare(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, buy_amount, buy_counts) VALUES (?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE buy_amount = VALUES(buy_amount) + buy_amount, buy_counts = VALUES(buy_counts) + buy_counts`)
+	updateDailySellMetricsStmt, err := tx.Prepare(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, sell_amount, sell_counts) VALUES (?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE sell_amount = VALUES(sell_amount) + sell_amount, sell_counts = VALUES(sell_counts) + sell_counts`)
 	for query.Next() {
 		var fromAddress, toAddress string
 		var timestamp int
@@ -42,24 +46,48 @@ LIMIT 100
 		if err != nil {
 			return err
 		}
-		fmt.Println("fromAddress:", fromAddress)
-		fmt.Println("toAddress:", toAddress)
-		fmt.Println("timestamp:", timestamp)
+		log.Println("fromAddress:", fromAddress)
+		log.Println("toAddress:", toAddress)
+		log.Println("timestamp:", timestamp)
 		newLastTimestamp = timestamp
-		fmt.Println("value:", value)
+		log.Println("value:", value)
 
 		newFromBalance := cache.CACHE.IncrByFloat(ctx, "BALANCE#"+fromAddress, -value)
 		newToBalance := cache.CACHE.IncrByFloat(ctx, "BALANCE#"+toAddress, value)
 
 		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
 		date := time.Unix(int64(timestamp)+8*60*60, 0).Format("2006-01-02")
-		updateBalanceSnapshot(tx, fromAddress, date, newFromBalance.Val())
-		updateBalanceSnapshot(tx, toAddress, date, newToBalance.Val())
+		_, err = updateBalanceSnapshotStmt.Exec(fromAddress, date, newFromBalance.Val())
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
+			}
+			return err
+		}
+		_, err = updateBalanceSnapshotStmt.Exec(toAddress, date, newToBalance.Val())
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
+			}
+			return err
+		}
 
 		if fromAddress == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
-			updateDailyBuyMetrics(tx, toAddress, date, value)
+			_, err = updateDailyBuyMetricsStmt.Exec(toAddress, date, value, 1)
+			if err != nil {
+				if rbErr := tx.Rollback(); rbErr != nil {
+					log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
+				}
+				return err
+			}
 		} else if toAddress == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
-			updateDailySellMetrics(tx, fromAddress, date, value)
+			_, err = updateDailySellMetricsStmt.Exec(fromAddress, date, value, 1)
+			if err != nil {
+				if rbErr := tx.Rollback(); rbErr != nil {
+					log.Fatalf("insert error: %v, unable to rollback: %v", err, rbErr)
+				}
+				return err
+			}
 		}
 	}
 	err = tx.Commit()
@@ -71,41 +99,4 @@ LIMIT 100
 	cache.CACHE.Set(ctx, "erc20_transfer_bsc_last_timestamp", newLastTimestamp, 0)
 
 	return nil
-}
-
-// updateBalanceSnapshot 更新余额快照，便于每日归档
-func updateBalanceSnapshot(tx *sql.Tx, address string, date string, value float64) {
-	_, err := tx.Exec(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, last_balance) VALUES (?, ?, ?)
-ON DUPLICATE KEY UPDATE last_balance = VALUES(last_balance)`, address, date, value)
-	if err != nil {
-		log.Println("Failed to update balance snapshot for", address, "on", date)
-		return
-	}
-	log.Println("Updated balance snapshot for", address, "on", date)
-}
-
-// updateDailyBuyMetrics 更新当天的够买数量和额度
-func updateDailyBuyMetrics(tx *sql.Tx, address string, date string, value float64) {
-	_, err := tx.Exec(`
-INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, buy_amount, buy_counts) VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE buy_amount = VALUES(buy_amount) + ?, buy_counts = VALUES(buy_counts) + ?
-`, address, date, value, 1, value, 1)
-	if err != nil {
-		log.Println("Failed to update buy metrics for", address, "on", date)
-		return
-	}
-	log.Println("Updated buy metrics for", address, "on", date)
-}
-
-// updateDailySellMetrics 更新当天的卖出数量和额度
-func updateDailySellMetrics(tx *sql.Tx, address string, date string, value float64) {
-	_, err := tx.Exec(`
-INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, sell_amount, sell_counts) VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE sell_amount = VALUES(sell_amount) + ?, sell_counts = VALUES(sell_counts) + ?
-`, address, date, value, 1, value, 1)
-	if err != nil {
-		log.Println("Failed to update sell metrics for", address, "on", date)
-		return
-	}
-	log.Println("Updated sell metrics for", address, "on", date)
 }
