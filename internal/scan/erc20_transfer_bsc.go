@@ -18,14 +18,14 @@ func ERC20TransferBSC(c echo.Context) error {
 		lastTimestamp.SetVal("0")
 	}
 
-	fmt.Println("erc20_transfer_bsc last timestamp:", lastTimestamp)
+	fmt.Println("erc20_transfer_bsc last timestamp:", lastTimestamp.Val())
 
 	query, err := mysql.MYSQL.Query(`SELECT from_address, to_address, timestamp, value
 FROM erc20_transfer_bsc 
 WHERE timestamp > ? 
 ORDER By timestamp 
 LIMIT 100
-`, lastTimestamp.String())
+`, lastTimestamp.Val())
 	if err != nil {
 		return err
 	}
