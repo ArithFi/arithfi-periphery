@@ -26,7 +26,7 @@ func EnvMysqlURI() string {
 	return url
 }
 
-func EnvRedisURL() string {
+func EnvRedisAddr() string {
 	url := os.Getenv("REDIS_URL")
 	return url
 }

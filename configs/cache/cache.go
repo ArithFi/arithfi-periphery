@@ -16,8 +16,11 @@ func init() {
 }
 
 func connectRedis() *redis.Client {
-	opt, _ := redis.ParseURL(configs.EnvRedisURL())
-	rdb := redis.NewClient(opt)
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     configs.EnvRedisAddr(),
+		Password: "",
+		DB:       0,
+	})
 
 	if err := rdb.Ping(context.Background()).Err(); err != nil {
 		log.Fatal("Failed to ping Redis: ", err)
