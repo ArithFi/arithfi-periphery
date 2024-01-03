@@ -18,17 +18,17 @@ func FFutureTrading() error {
 
 	log.Println(lastTimestamp)
 
-	query, err := mysql.MYSQL.Query(`SELECT product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, availableBanlance, copyAccountBalance
+	query, err := mysql.MYSQL.Query(`SELECT _id, product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, availableBanlance, copyAccountBalance
 FROM f_future_trading 
-WHERE timestamp > ? 
-ORDER By timestamp 
+WHERE _id > ? 
+ORDER By _id 
 LIMIT 200
 `, lastTimestamp.Val())
 	if err != nil {
 		return err
 	}
 	defer query.Close()
-	var newLastTimestamp int
+	var newLastId int
 	tx, err := mysql.MYSQL.Begin()
 	handleNewOrderStmt, err := tx.Prepare(`INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, new_position_counts, new_position_size)
 VALUES (?, ?, ?, ?, ?, ?)
@@ -39,7 +39,7 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 	for query.Next() {
 		var product string
 		var positionIndex int64
-		var timeStamp int
+		var timeStamp, id int
 		var leverage int64
 		var orderType string
 		var mode string
@@ -52,11 +52,11 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 		var availableBanlance float64
 		var copyAccountBalance float64
 
-		err := query.Scan(&product, &positionIndex, &leverage, &orderType, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress, &availableBanlance, &copyAccountBalance)
+		err := query.Scan(&id, &product, &positionIndex, &leverage, &orderType, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress, &availableBanlance, &copyAccountBalance)
 		if err != nil {
 			return err
 		}
-		newLastTimestamp = timeStamp
+		newLastId = id
 
 		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
 		date := time.Unix(int64(timeStamp)+8*60*60, 0).Format("2006-01-02")
@@ -83,8 +83,8 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 	if err != nil {
 		return err
 	}
-	if newLastTimestamp > 0 {
-		cache.CACHE.Set(ctx, "f_future_trading_last_timestamp", newLastTimestamp, 0)
+	if newLastId > 0 {
+		cache.CACHE.Set(ctx, "f_future_trading_last_id", newLastId, 0)
 	}
 	return nil
 }

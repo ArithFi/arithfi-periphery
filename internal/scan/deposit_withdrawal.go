@@ -11,25 +11,25 @@ import (
 // DepositWithdrawal 扫描这个表的事件
 func DepositWithdrawal() error {
 	var ctx = context.Background()
-	lastTimestamp := cache.CACHE.Get(ctx, "deposit_withdrawal_last_timestamp")
+	lastTimestamp := cache.CACHE.Get(ctx, "deposit_withdrawal_last_id")
 	if lastTimestamp == nil {
 		lastTimestamp.SetVal("0")
 	}
 
 	log.Println(lastTimestamp)
 
-	query, err := mysql.MYSQL.Query(`SELECT walletAddress, amount, timestamp, ordertype
+	query, err := mysql.MYSQL.Query(`SELECT id, walletAddress, amount, timestamp, ordertype
 FROM deposit_withdrawal 
-WHERE timestamp > ?
+WHERE id > ?
 AND status = 1
-ORDER By timestamp 
+ORDER By id 
 LIMIT 200
 `, lastTimestamp.Val())
 	if err != nil {
 		return err
 	}
 	defer query.Close()
-	var newLastTimestamp int
+	var newLastId int
 
 	tx, err := mysql.MYSQL.Begin()
 	handleDepositStmt, err := tx.Prepare(`INSERT INTO b_daily_offchain_deposit_withdraw_metrics (walletAddress, date, deposit_amount, deposit_counts) VALUES (?, ?, ?, ?)
@@ -38,14 +38,14 @@ ON DUPLICATE KEY UPDATE deposit_amount = VALUES(deposit_amount) + deposit_amount
 ON DUPLICATE KEY UPDATE withdraw_amount = VALUES(withdraw_amount) + withdraw_amount, withdraw_counts = VALUES(withdraw_counts) + withdraw_counts`)
 	for query.Next() {
 		var walletAddress, ordertype string
-		var timestamp int
+		var timestamp, id int
 		var amount float64
-		err := query.Scan(&walletAddress, &amount, &timestamp, &ordertype)
+		err := query.Scan(&id, &walletAddress, &amount, &timestamp, &ordertype)
 		if err != nil {
 			return err
 		}
 		log.Println("timestamp:", timestamp)
-		newLastTimestamp = timestamp
+		newLastId = id
 
 		// 获取时间戳，需要处理成+8的北京时间,获取北京的时间的日期字符串
 		date := time.Unix(int64(timestamp)+8*60*60, 0).Format("2006-01-02")
@@ -69,8 +69,8 @@ ON DUPLICATE KEY UPDATE withdraw_amount = VALUES(withdraw_amount) + withdraw_amo
 	if err != nil {
 		return err
 	}
-	if newLastTimestamp > 0 {
-		cache.CACHE.Set(ctx, "deposit_withdrawal_last_timestamp", newLastTimestamp, 0)
+	if newLastId > 0 {
+		cache.CACHE.Set(ctx, "deposit_withdrawal_last_id", newLastId, 0)
 	}
 
 	return nil
