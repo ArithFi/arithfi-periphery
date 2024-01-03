@@ -2,6 +2,7 @@ package scan
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
@@ -30,6 +31,7 @@ LIMIT 100
 	}
 	defer query.Close()
 	var newLastTimestamp int
+	tx, err := mysql.MYSQL.Begin()
 	for query.Next() {
 		var product string
 		var positionIndex int64
@@ -57,18 +59,23 @@ LIMIT 100
 		fmt.Println("date:", date)
 		if orderType == "MARKET_ORDER_FEE" || orderType == "LIMIT_ORDER_FEE" {
 			// 处理每个用户每天开单的数据汇总，新增仓位，开单数量
-			handleNewOrder(mode, date, walletAddress, kolAddress, volume)
+			handleNewOrder(tx, mode, date, walletAddress, kolAddress, volume)
 		} else if orderType == "MARKET_CLOSE_FEE" || orderType == "TP_ORDER_FEE" || orderType == "SL_ORDER_FEE" || orderType == "MARKET_LIQUIDATION" {
 			// 处理每个每天的净销毁
-			handleBurn(mode, sellValue, margin, walletAddress, kolAddress, date)
+			handleBurn(tx, mode, sellValue, margin, walletAddress, kolAddress, date)
 		}
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
 	cache.CACHE.Set(ctx, "f_future_trading_last_timestamp", newLastTimestamp, 0)
 	return nil
 }
 
-func handleNewOrder(mode string, date string, walletAddress string, kolAddress string, volume float64) {
-	_, err := mysql.MYSQL.Exec(`
+func handleNewOrder(tx *sql.Tx, mode string, date string, walletAddress string, kolAddress string, volume float64) {
+	_, err := tx.Exec(`
 INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, new_position_counts, new_position_size)
 VALUES (?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE new_position_counts = new_position_counts + 1, new_position_size = new_position_size + ?
@@ -80,9 +87,9 @@ ON DUPLICATE KEY UPDATE new_position_counts = new_position_counts + 1, new_posit
 	fmt.Println("handleNewOrder ok")
 }
 
-func handleBurn(mode string, sellValue float64, margin float64, walletAddress string, kolAddress string, date string) {
+func handleBurn(tx *sql.Tx, mode string, sellValue float64, margin float64, walletAddress string, kolAddress string, date string) {
 	var netBurnAmount = sellValue - margin
-	_, err := mysql.MYSQL.Exec(`
+	_, err := tx.Exec(`
 INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, net_burn_amount)
 VALUES (?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount)
