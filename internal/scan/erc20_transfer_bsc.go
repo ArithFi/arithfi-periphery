@@ -5,6 +5,7 @@ import (
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -28,7 +29,7 @@ LIMIT 200
 		return err
 	}
 	defer query.Close()
-	var newLastTimestamp int
+	newLastTimestamp := 0
 
 	tx, err := mysql.MYSQL.Begin()
 	updateBalanceSnapshotStmt, err := tx.Prepare(`INSERT INTO b_daily_onchain_trade_metrics (walletAddress, date, last_balance) VALUES (?, ?, ?)
@@ -94,8 +95,13 @@ ON DUPLICATE KEY UPDATE sell_amount = VALUES(sell_amount) + sell_amount, sell_co
 		return err
 	}
 
-	// 更新最后一次扫描的时间
-	cache.CACHE.Set(ctx, "erc20_transfer_bsc_last_timestamp", newLastTimestamp, 0)
+	lastTimestampNumber, err := strconv.Atoi(lastTimestamp.Val())
+	if err != nil {
+		lastTimestampNumber = 0
+	}
+	if newLastTimestamp > lastTimestampNumber {
+		cache.CACHE.Set(ctx, "erc20_transfer_bsc_last_timestamp", newLastTimestamp, 0)
+	}
 
 	return nil
 }

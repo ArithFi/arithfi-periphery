@@ -5,6 +5,7 @@ import (
 	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -84,6 +85,12 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 		return err
 	}
 
-	cache.CACHE.Set(ctx, "f_future_trading_last_timestamp", newLastTimestamp, 0)
+	lastTimestampNumber, err := strconv.Atoi(lastTimestamp.Val())
+	if err != nil {
+		lastTimestampNumber = 0
+	}
+	if newLastTimestamp > lastTimestampNumber {
+		cache.CACHE.Set(ctx, "f_future_trading_last_timestamp", newLastTimestamp, 0)
+	}
 	return nil
 }
