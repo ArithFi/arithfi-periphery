@@ -36,6 +36,7 @@ ON DUPLICATE KEY UPDATE new_position_counts = new_position_counts + VALUES(new_p
 	handleBurnStmt, err := tx.Prepare(`INSERT INTO b_daily_offchain_futures_metrics (date, walletAddress, mode, kolAddress, net_burn_amount)
 VALUES (?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amount`)
+
 	for query.Next() {
 		var product string
 		var positionIndex int64
@@ -56,6 +57,7 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 			return err
 		}
 		newLastId = id
+		log.Println(id, product, positionIndex, leverage, orderType, mode, direction, margin, volume, sellValue, walletAddress, kolAddress)
 
 		loc, _ := time.LoadLocation("Local")
 		date, _ := time.ParseInLocation("2006-01-02 15:04:05", timeStamp, loc)
@@ -81,6 +83,8 @@ ON DUPLICATE KEY UPDATE net_burn_amount = VALUES(net_burn_amount) + net_burn_amo
 				}
 				return err
 			}
+		} else {
+			break
 		}
 	}
 	err = tx.Commit()
