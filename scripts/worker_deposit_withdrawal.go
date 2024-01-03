@@ -11,6 +11,6 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		time.Sleep(time.Minute)
+		time.Sleep(time.Second * 10)
 	}
 }
