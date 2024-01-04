@@ -77,8 +77,8 @@ func main() {
 			// 创建一个新的对象，abstract: { from, to, date, amount}
 			// 将摘要字段添加到 log 中
 			abstract := bson.M{
-				"from":   from,
-				"to":     to,
+				"from":   "0x" + from[len(from)-40:],
+				"to":     "0x" + to[len(to)-40:],
 				"amount": amountEth.String(),
 			}
 			aggregate := bson.M{
