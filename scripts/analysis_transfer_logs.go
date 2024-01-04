@@ -22,8 +22,8 @@ func ConvertWeiToEth(wei *big.Int) *big.Float {
 }
 
 func main() {
-	var fromBlock = "0"
-	var preFromBlock = "-1"
+	var fromBlock = "0x1e97bca"
+	var preFromBlock = "0"
 	ctx := context.TODO()
 
 	opts := options.Find()
