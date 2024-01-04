@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"io"
 	"math/big"
 	"net/http"
@@ -86,9 +87,10 @@ func main() {
 	}
 	// Perform batch insertion
 	if len(documents) > 0 {
-		_, err = collection.InsertMany(ctx, documents)
+		_options := options.InsertMany().SetOrdered(false)
+		_, err = collection.InsertMany(ctx, documents, _options)
 		if err != nil {
-			fmt.Println("Error inserting documents:", err)
+			fmt.Println("Error _ documents:", err)
 			return
 		}
 		fmt.Println("Logs inserted successfully")
