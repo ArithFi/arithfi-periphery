@@ -22,8 +22,8 @@ func ConvertWeiToEth(wei *big.Int) *big.Float {
 }
 
 func main() {
-	var fromBlock = "0x1e97bca"
-	var preFromBlock = "0"
+	var fromBlock = "0"
+	var preFromBlock = ""
 	ctx := context.TODO()
 
 	opts := options.Find()
@@ -43,7 +43,6 @@ func main() {
 			return
 		}
 		defer cursor.Close(ctx)
-
 		if !cursor.Next(ctx) {
 			fmt.Println("没有找到新记录")
 			time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
@@ -100,9 +99,9 @@ func main() {
 			}
 
 			fmt.Println("更新记录成功", log["blocknumber"])
+			preFromBlock = fromBlock
 			fromBlock = log["blocknumber"].(string)
 		}
-
 		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
 	}
 }
