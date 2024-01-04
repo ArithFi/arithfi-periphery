@@ -4,23 +4,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs"
+	"github.com/arithfi/arithfi-periphery/configs/mongo"
 	"io"
 	"math/big"
 	"net/http"
-	"strings"
 )
+
+type Log struct {
+	Address          string   `json:"address"`
+	TimeStamp        string   `json:"timeStamp"`
+	BlockNumber      string   `json:"blockNumber"`
+	BlockHash        string   `json:"blockHash"`
+	GasPrice         string   `json:"gasPrice"`
+	GasUsed          string   `json:"gasUsed"`
+	LogIndex         string   `json:"logIndex"`
+	Data             string   `json:"data"`
+	TransactionHash  string   `json:"transactionHash"`
+	TransactionIndex string   `json:"transactionIndex"`
+	Topics           []string `json:"topics"`
+}
 
 type Result struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
-	Result  []struct {
-		Address         string   `json:"address"`
-		TimeStamp       string   `json:"timeStamp"`
-		BlockNumber     string   `json:"blockNumber"`
-		Data            string   `json:"data"`
-		TransactionHash string   `json:"transactionHash"`
-		Topics          []string `json:"topics"`
-	}
+	Result  []Log  `json:"result"`
 }
 
 // ConvertWeiToEth 将 wei 单位转换为 ETH 单位。
@@ -69,10 +76,39 @@ func main() {
 		return
 	}
 
-	for _, v := range result.Result {
-		amountWei := new(big.Int)
-		amountWei.SetString(strings.TrimPrefix(v.Data, "0x"), 16)
-		amountEth := ConvertWeiToEth(amountWei)
-		fmt.Printf("Transaction Hash: %s, Amount: %s ETH\n", v.TransactionHash, amountEth.Text('f', 6))
-	}
+	//balances := make(map[string]*big.Float)
+
+	//for _, v := range result.Result {
+	//	timeStamp := new(big.Int)
+	//	timeStamp.SetString(strings.TrimPrefix(v.TimeStamp, "0x"), 16)
+	//	loc, _ := time.LoadLocation("Asia/Shanghai")
+	//	date := time.Unix(timeStamp.Int64(), 0).In(loc).Format("2006-01-02")
+	//	amountWei := new(big.Int)
+	//	amountWei.SetString(strings.TrimPrefix(v.Data, "0x"), 16)
+	//	amountEth := ConvertWeiToEth(amountWei)
+	//	from := v.Topics[0]
+	//	to := v.Topics[1]
+	//
+	//	if balances[from] == nil {
+	//		balances[from] = new(big.Float)
+	//	}
+	//	beforeFromBalance := balances[from]
+	//	balances[from].Sub(balances[from], amountEth)
+	//	afterFromBalance := balances[from]
+	//	if balances[to] == nil {
+	//		balances[to] = new(big.Float)
+	//	}
+	//	beforeToBalance := balances[to]
+	//	balances[to].Add(balances[to], amountEth)
+	//	afterToBalance := balances[to]
+	//
+	//	// raw 为 原始结构的 v，用于备份，方便调试
+	//	// 输出一个结构，存储到MongoDB
+	//	// { raw: v, timeStamp: timeStamp.Int64(), abstract: { from: from, to: to, amount: amountEth }, before: { from: beforeFromBalance, to: beforeToBalance}, after: { from:  afterFromBalance, to: afterToBalance} } }
+	//	fmt.Printf("Date: %s, From: %s, To: %s, Transaction Hash: %s, Amount: %s ETH\n", date, from, to, v.TransactionHash, amountEth.Text('f', 6))
+	//}
+
+	// 先插入到 MongoDB
+	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
+
 }

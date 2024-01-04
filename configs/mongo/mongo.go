@@ -42,9 +42,3 @@ func connectMongoDB() *mongo.Client {
 	log.Println("Connected to MongoDB")
 	return client
 }
-
-// GetCollection function to get database collections
-func GetCollection(collectionName string) *mongo.Collection {
-	collection := MONGODB.Database("periphery").Collection(collectionName)
-	return collection
-}
