@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs"
 	"io"
-	"math/big"
 	"net/http"
 )
 
@@ -27,13 +26,6 @@ type Result struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 	Result  []Log  `json:"result"`
-}
-
-// ConvertWeiToEth 将 wei 单位转换为 ETH 单位。
-func ConvertWeiToEth(wei *big.Int) *big.Float {
-	weiInEth := new(big.Float).SetInt(wei)
-	ethValue := new(big.Float).Quo(weiInEth, big.NewFloat(1e18))
-	return ethValue
 }
 
 func GetLogs(fromBlock string, toBlock string) ([]Log, error) {
