@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs"
@@ -75,40 +76,23 @@ func main() {
 		fmt.Println("Error parsing JSON:", err)
 		return
 	}
-
-	//balances := make(map[string]*big.Float)
-
-	//for _, v := range result.Result {
-	//	timeStamp := new(big.Int)
-	//	timeStamp.SetString(strings.TrimPrefix(v.TimeStamp, "0x"), 16)
-	//	loc, _ := time.LoadLocation("Asia/Shanghai")
-	//	date := time.Unix(timeStamp.Int64(), 0).In(loc).Format("2006-01-02")
-	//	amountWei := new(big.Int)
-	//	amountWei.SetString(strings.TrimPrefix(v.Data, "0x"), 16)
-	//	amountEth := ConvertWeiToEth(amountWei)
-	//	from := v.Topics[0]
-	//	to := v.Topics[1]
-	//
-	//	if balances[from] == nil {
-	//		balances[from] = new(big.Float)
-	//	}
-	//	beforeFromBalance := balances[from]
-	//	balances[from].Sub(balances[from], amountEth)
-	//	afterFromBalance := balances[from]
-	//	if balances[to] == nil {
-	//		balances[to] = new(big.Float)
-	//	}
-	//	beforeToBalance := balances[to]
-	//	balances[to].Add(balances[to], amountEth)
-	//	afterToBalance := balances[to]
-	//
-	//	// raw 为 原始结构的 v，用于备份，方便调试
-	//	// 输出一个结构，存储到MongoDB
-	//	// { raw: v, timeStamp: timeStamp.Int64(), abstract: { from: from, to: to, amount: amountEth }, before: { from: beforeFromBalance, to: beforeToBalance}, after: { from:  afterFromBalance, to: afterToBalance} } }
-	//	fmt.Printf("Date: %s, From: %s, To: %s, Transaction Hash: %s, Amount: %s ETH\n", date, from, to, v.TransactionHash, amountEth.Text('f', 6))
-	//}
-
-	// 先插入到 MongoDB
+	ctx := context.TODO()
+	// 准备批量插入到 MongoDB， 如果已经存在，则忽略
 	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
-
+	// Prepare the documents for batch insertion
+	var documents []interface{}
+	for _, log := range result.Result {
+		documents = append(documents, log)
+	}
+	// Perform batch insertion
+	if len(documents) > 0 {
+		_, err = collection.InsertMany(ctx, documents)
+		if err != nil {
+			fmt.Println("Error inserting documents:", err)
+			return
+		}
+		fmt.Println("Logs inserted successfully")
+	} else {
+		fmt.Println("No logs to insert")
+	}
 }
