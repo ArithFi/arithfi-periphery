@@ -43,11 +43,6 @@ func main() {
 			return
 		}
 		defer cursor.Close(ctx)
-		if !cursor.Next(ctx) {
-			fmt.Println("没有找到新记录")
-			time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
-			break
-		}
 
 		for cursor.Next(ctx) {
 			var log bson.M
@@ -56,10 +51,6 @@ func main() {
 			}
 			// 如果已经存在摘要，则先跳过该记录
 			// 后续可以增加检查逻辑，验算摘要内容
-
-			//if _, ok := log["abstract"]; ok {
-			//	continue
-			//}
 
 			topics, ok := log["topics"].(bson.A)
 			if !ok {
