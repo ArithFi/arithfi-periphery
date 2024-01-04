@@ -1,12 +1,9 @@
-package main
+package bscscan
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs"
-	"github.com/arithfi/arithfi-periphery/configs/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"io"
 	"math/big"
 	"net/http"
@@ -39,9 +36,7 @@ func ConvertWeiToEth(wei *big.Int) *big.Float {
 	return ethValue
 }
 
-func main() {
-	fromBlock := "0"
-	toBlock := "latest"
+func GetLogs(fromBlock string, toBlock string) ([]Log, error) {
 	tokenAddress := "0x00000000bA2ca30042001aBC545871380F570B1F"
 	topic0 := "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
 	url := "https://api.bscscan.com/api?module=logs&action=getLogs&fromBlock=" + fromBlock +
@@ -56,45 +51,30 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
-		return
+		return []Log{}, err
 	}
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return []Log{}, err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return []Log{}, err
 	}
 
 	var result Result
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		fmt.Println("Error parsing JSON:", err)
-		return
+		return []Log{}, err
 	}
-	ctx := context.TODO()
-	// 准备批量插入到 MongoDB， 如果已经存在，则忽略
-	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
-	// Prepare the documents for batch insertion
-	var documents []interface{}
-	for _, log := range result.Result {
-		documents = append(documents, log)
-	}
-	// Perform batch insertion
-	if len(documents) > 0 {
-		_options := options.InsertMany().SetOrdered(false)
-		_, err = collection.InsertMany(ctx, documents, _options)
-		if err != nil {
-			fmt.Println("Error _ documents:", err)
-			return
-		}
-		fmt.Println("Logs inserted successfully")
-	} else {
-		fmt.Println("No logs to insert")
-	}
+
+	// 返回 result
+	fmt.Println(result)
+
+	return result.Result, nil
 }
