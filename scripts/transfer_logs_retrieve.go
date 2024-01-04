@@ -53,7 +53,7 @@ func main() {
 			fmt.Println("No logs to insert")
 		}
 
-		// add a delay or condition to exit the loop if needed
+		fmt.Println("Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }

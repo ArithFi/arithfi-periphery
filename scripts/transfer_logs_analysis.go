@@ -23,7 +23,6 @@ func ConvertWeiToEth(wei *big.Int) *big.Float {
 
 func main() {
 	var fromBlock = "0"
-	var preFromBlock = ""
 	ctx := context.TODO()
 
 	opts := options.Find()
@@ -31,12 +30,6 @@ func main() {
 	opts.SetLimit(200)
 
 	for {
-		if preFromBlock == fromBlock {
-			fmt.Println("没有新记录")
-			time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
-			continue
-		}
-		preFromBlock = fromBlock
 		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
 		cursor, err := collection.Find(ctx, bson.M{"blocknumber": bson.M{"$gte": fromBlock}}, opts)
 		if err != nil {
@@ -90,9 +83,9 @@ func main() {
 			}
 
 			fmt.Println("更新记录成功", log["blocknumber"])
-			preFromBlock = fromBlock
 			fromBlock = log["blocknumber"].(string)
 		}
+		fmt.Println("Sleep 10 seconds")
 		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
 	}
 }
