@@ -47,7 +47,7 @@ func main() {
 				return
 			}
 			date := aggregate["date"].(string)
-			totalTransfersMap[date] = totalTransfersMap[date] + 1
+			totalTransfersMap[date]++
 			abstract, ok := log["abstract"].(bson.M)
 			if !ok {
 				fmt.Println("Unable to retrieve the abstract field or the abstract field is not of slice type.")
