@@ -26,7 +26,7 @@ func main() {
 	totalTransfersMap := make(map[string]int)
 
 	// 每次更新 snapshot 后更新 snapshotCursorDate
-	var snapshotCursorDate = "2023-09-26"
+	var snapshotCursorDate = "2023-09-25"
 
 	for {
 		fmt.Println("开始获取数据:", snapshotCursorDate)
@@ -52,6 +52,7 @@ func main() {
 			}
 			date := aggregate["date"].(string)
 			totalTransfersMap[date] = totalTransfersMap[date] + 1
+			fmt.Println("新总转账次数", date, ":", totalTransfersMap[date])
 			abstract, ok := log["abstract"].(bson.M)
 			if !ok {
 				fmt.Println(log["abstract"])
@@ -81,19 +82,23 @@ func main() {
 
 			if date > snapshotCursorDate {
 				var snapshotArray []bson.M
-				for address, balance := range snapshotMap[date] {
-					snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
+				for address, balance := range snapshotMap[snapshotCursorDate] {
+					// balance > 0, append to snapshot array
+					if balance.Cmp(big.NewFloat(0)) > 0 {
+						snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
+					}
 				}
 				var abstract bson.M
 				abstract = make(bson.M)
 				abstract["holders"] = len(snapshotArray)
-				abstract["total_transfers"] = totalTransfersMap[date]
+				abstract["total_transfers"] = totalTransfersMap[snapshotCursorDate]
 				collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
-				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
+				_, err := collection.UpdateOne(ctx, bson.M{"date": snapshotCursorDate}, bson.M{"$set": bson.M{"abstract": abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
 				if err != nil {
 					fmt.Println(err)
 				}
-				fmt.Println("Snapshot updated:", date)
+				fmt.Println("Snapshot updated:", snapshotCursorDate)
+				// update snapshotCursorDate
 				snapshotCursorDate = date
 			}
 		}
