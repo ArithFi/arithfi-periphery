@@ -50,18 +50,13 @@ func main() {
 			}
 			from, _ := topics[1].(string)
 			to, _ := topics[2].(string)
-			// 处理日期，北京时间，需要添加到摘要
 			timeStamp := new(big.Int)
 			timeStamp.SetString(strings.TrimPrefix(log["timestamp"].(string), "0x"), 16)
 			loc, _ := time.LoadLocation("Asia/Shanghai")
 			date := time.Unix(timeStamp.Int64(), 0).In(loc).Format("2006-01-02")
-			// 转账金额，需要添加到摘要
 			amountWei := new(big.Int)
 			amountWei.SetString(strings.TrimPrefix(log["data"].(string), "0x"), 16)
 			amountEth := ConvertWeiToEth(amountWei)
-			// 更新 MongoDB 中的记录，增加摘要字段，方便后续分析
-			// 创建一个新的对象，abstract: { from, to, date, amount}
-			// 将摘要字段添加到 log 中
 			abstract := bson.M{
 				"from":   "0x" + from[len(from)-40:],
 				"to":     "0x" + to[len(to)-40:],
@@ -79,10 +74,10 @@ func main() {
 				return
 			}
 
-			fmt.Println("更新记录成功", log["blocknumber"], date)
+			fmt.Println("Update transfer_logs success, block:", log["blocknumber"], ", date:", date)
 			fromBlock = log["blocknumber"].(string)
 		}
-		fmt.Println("Sleep 5 seconds")
-		time.Sleep(time.Second * 5) // 每隔 10 秒获取一次记录
+		fmt.Println("Sleep 10 seconds")
+		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
 	}
 }

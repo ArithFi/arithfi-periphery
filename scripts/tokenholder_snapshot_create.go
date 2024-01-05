@@ -20,12 +20,10 @@ func main() {
 	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
 	opts.SetLimit(2000)
 
-	// 维护一个map，用于存储每个地址的总额
 	balancesMap := make(map[string]*big.Float)
 	snapshotMap := make(map[string]map[string]*big.Float)
 	totalTransfersMap := make(map[string]int)
 
-	// 每次更新 snapshot 后更新 snapshotCursorDate
 	var snapshotCursorDate = "2023-09-25"
 
 	for {
@@ -37,7 +35,6 @@ func main() {
 			return
 		}
 		defer cursor.Close(ctx)
-		fmt.Println("准备遍历数据")
 		for cursor.Next(ctx) {
 			var log bson.M
 			if err := cursor.Decode(&log); err != nil {
@@ -46,16 +43,14 @@ func main() {
 			}
 			aggregate, ok := log["aggregate"].(bson.M)
 			if !ok {
-				fmt.Println(log["aggregate"])
-				fmt.Println("无法获取aggregate字段或者aggregate字段不是切片类型")
+				fmt.Println("Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
 				return
 			}
 			date := aggregate["date"].(string)
 			totalTransfersMap[date] = totalTransfersMap[date] + 1
 			abstract, ok := log["abstract"].(bson.M)
 			if !ok {
-				fmt.Println(log["abstract"])
-				fmt.Println("无法获取abstract字段或者abstract字段不是切片类型")
+				fmt.Println("Unable to retrieve the abstract field or the abstract field is not of slice type.")
 				return
 			}
 			from := abstract["from"].(string)
@@ -64,7 +59,7 @@ func main() {
 			amount, ok := new(big.Float).SetString(abstract["amount"].(string))
 			if !ok {
 				fmt.Println(abstract["amount"])
-				fmt.Println("无法获取amount字段或者amount字段不是字符串类型")
+				fmt.Println("Unable to retrieve the amount field or the amount field is not of string type.")
 				return
 			}
 			if balancesMap[from] == nil {
@@ -82,7 +77,6 @@ func main() {
 			if date > snapshotCursorDate {
 				var snapshotArray []bson.M
 				for address, balance := range snapshotMap[snapshotCursorDate] {
-					// balance > 0, append to snapshot array
 					if balance.Cmp(big.NewFloat(0)) > 0 {
 						snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
 					}
@@ -96,12 +90,11 @@ func main() {
 				if err != nil {
 					fmt.Println(err)
 				}
-				fmt.Println("Snapshot updated:", snapshotCursorDate)
-				// update snapshotCursorDate
+				fmt.Println("Snapshot updated:", snapshotCursorDate, "Next date:", date)
 				snapshotCursorDate = date
 			}
 		}
-		fmt.Println("Sleep 5 seconds")
-		time.Sleep(time.Second * 5) // 每隔 5 秒获取一次记录
+		fmt.Println("Sleep 10 seconds")
+		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
 	}
 }
