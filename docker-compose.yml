@@ -8,39 +8,29 @@ services:
       - "8080:8080"
     env_file:
       - .env
-    environment:
-      - TZ=Asia/Shanghai
     command: ./rest-api/main
     restart: always
   transfer_logs_retrieve:
     build: .
     env_file:
       - .env
-    environment:
-      - TZ=Asia/Shanghai
     command: ./workers/transfer_logs_retrieve
     restart: always
   transfer_logs_analysis:
     build: .
     env_file:
       - .env
-    environment:
-      - TZ=Asia/Shanghai
     command: ./workers/transfer_logs_analysis
     restart: always
   tokenholder_snapshot_create:
     build: .
     env_file:
       - .env
-    environment:
-      - TZ=Asia/Shanghai
     command: ./workers/tokenholder_snapshot_create
     restart: always
   pancakeswap_snapshot_create:
     build: .
     env_file:
       - .env
-    environment:
-      - TZ=Asia/Shanghai
     command: ./workers/pancakeswap_snapshot_create
     restart: always
