@@ -113,6 +113,18 @@ func main() {
 			if date > snapshotCursorDate {
 				var tradersArray []bson.M
 				for address, metrics := range snapshotMap[snapshotCursorDate] {
+					if metrics["totalSellVolume"] == nil {
+						metrics["totalSellVolume"] = new(big.Float)
+					}
+					if metrics["totalBuyVolume"] == nil {
+						metrics["totalBuyVolume"] = new(big.Float)
+					}
+					if metrics["totalSellTxs"] == nil {
+						metrics["totalSellTxs"] = new(big.Float)
+					}
+					if metrics["totalBuyTxs"] == nil {
+						metrics["totalBuyTxs"] = new(big.Float)
+					}
 					totalSellVolume := metrics["totalSellVolume"]
 					totalBuyVolume := metrics["totalBuyVolume"]
 					totalSellTxs, _ := metrics["totalSellTxs"].Int64()
@@ -124,7 +136,7 @@ func main() {
 						"total_volume":            new(big.Float).Add(totalSellVolume, totalBuyVolume).String(),
 						"total_sell_transactions": totalSellTxs,
 						"total_buy_transactions":  totalBuyTxs,
-						"total_transactions":      totalSellTxs + totalBuyTxs,
+						"total_transactions":      totalBuyTxs + totalSellTxs,
 					})
 				}
 				var abstract bson.M
