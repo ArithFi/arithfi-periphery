@@ -2,11 +2,30 @@ version: '3.8'
 name: arithfi-periphery
 
 services:
-
-
-  api-server:
+  rest-api:
     build: .
     ports:
       - "8080:8080"
     env_file:
       - .env
+    command: ./rest-api/main
+  transfer_logs_retrieve:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/transfer_logs_retrieve
+  transfer_logs_analysis:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/transfer_logs_analysis
+  tokenholder_snapshot_create:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/tokenholder_snapshot_create
+  pancakeswap_snapshot_create:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/pancakeswap_snapshot_create
