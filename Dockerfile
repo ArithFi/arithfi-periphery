@@ -19,8 +19,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -v -o bin/rest-api/main cmd/rest-api/main.
 
 FROM scratch
 
-COPY --from=builder /app/bin .
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app/bin .
 
 ENV TZ=Asia/Shanghai
 ENV PORT=8080
