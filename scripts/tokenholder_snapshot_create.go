@@ -18,7 +18,7 @@ func main() {
 
 	opts := options.Find()
 	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
-	opts.SetLimit(1000)
+	opts.SetLimit(2000)
 
 	// 维护一个map，用于存储每个地址的总额
 	balancesMap := make(map[string]*big.Float)
@@ -26,19 +26,22 @@ func main() {
 	totalTransfersMap := make(map[string]int)
 
 	// 每次更新 snapshot 后更新 snapshotCursorDate
-	var snapshotCursorDate = ""
+	var snapshotCursorDate = "2023-09-26"
 
 	for {
+		fmt.Println("开始获取数据:", snapshotCursorDate)
 		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
-		cursor, err := collection.Find(ctx, bson.M{"date": bson.M{"$gte": snapshotCursorDate}}, opts)
+		cursor, err := collection.Find(ctx, bson.M{"aggregate.date": bson.M{"$gte": snapshotCursorDate}}, opts)
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 		defer cursor.Close(ctx)
-
+		fmt.Println("准备遍历数据")
 		for cursor.Next(ctx) {
 			var log bson.M
 			if err := cursor.Decode(&log); err != nil {
+				fmt.Println(err)
 				continue
 			}
 			aggregate, ok := log["aggregate"].(bson.M)
