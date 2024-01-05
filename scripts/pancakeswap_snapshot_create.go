@@ -158,7 +158,7 @@ func main() {
 			if err != nil {
 				fmt.Println(err)
 			}
-			fmt.Println("Snapshot updated:", snapshotCursorDate, "Next date:", date)
+			fmt.Println("Snapshot updated:", date)
 			snapshotCursorDate = date
 		}
 		fmt.Println("Sleep 10 seconds")
