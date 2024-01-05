@@ -44,7 +44,6 @@ func main() {
 			}
 			topics, ok := log["topics"].(bson.A)
 			if !ok {
-				fmt.Println(log["topics"])
 				fmt.Println("无法获取topics字段或者topics字段不是切片类型")
 				return
 			}
@@ -52,7 +51,11 @@ func main() {
 			to, _ := topics[2].(string)
 			timeStamp := new(big.Int)
 			timeStamp.SetString(strings.TrimPrefix(log["timestamp"].(string), "0x"), 16)
-			loc, _ := time.LoadLocation("Asia/Shanghai")
+			loc, err := time.LoadLocation("Asia/Shanghai")
+			if err != nil {
+				fmt.Println("Error loading location:", err)
+				return
+			}
 			date := time.Unix(timeStamp.Int64(), 0).In(loc).Format("2006-01-02")
 			amountWei := new(big.Int)
 			amountWei.SetString(strings.TrimPrefix(log["data"].(string), "0x"), 16)
@@ -69,7 +72,7 @@ func main() {
 			log["abstract"] = abstract
 			log["aggregate"] = aggregate
 
-			_, err := collection.UpdateOne(ctx, bson.M{"_id": log["_id"]}, bson.M{"$set": log})
+			_, err = collection.UpdateOne(ctx, bson.M{"_id": log["_id"]}, bson.M{"$set": log})
 			if err != nil {
 				return
 			}
