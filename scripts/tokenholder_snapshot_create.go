@@ -19,7 +19,7 @@ func main() {
 
 	opts := options.Find()
 	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
-	opts.SetLimit(200)
+	opts.SetLimit(4000)
 
 	// 维护一个map，用于存储每个地址的总额
 	balancesMap := make(map[string]*big.Float)
@@ -65,8 +65,14 @@ func main() {
 				fmt.Println("无法获取amount字段或者amount字段不是字符串类型")
 				return
 			}
+			if balancesMap[from] == nil {
+				balancesMap[from] = new(big.Float)
+			}
 			if from != "0x0000000000000000000000000000000000000000" {
 				balancesMap[from].Sub(balancesMap[from], amount)
+			}
+			if balancesMap[to] == nil {
+				balancesMap[to] = new(big.Float)
 			}
 			balancesMap[to].Add(balancesMap[to], amount)
 			snapshotMap[date] = balancesMap
@@ -81,12 +87,10 @@ func main() {
 				for address, balance := range snapshotMap[date] {
 					snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance, "percentage": new(big.Float).Quo(balance, totalSupply)})
 				}
-
-				// 定义一个摘要字段
 				var abstract bson.M
+				abstract = make(bson.M)
 				abstract["holders"] = len(snapshotArray)
 				abstract["total_transfers"] = totalTransfersMap[date]
-
 				// 插入到数据库，chain-bsc.tokenholder-snapshot
 				collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
 				_, err := collection.InsertOne(ctx, bson.M{"date": date, "abstract": abstract, "holders": snapshotArray})
@@ -96,7 +100,7 @@ func main() {
 				snapshotCursorDate = date
 			}
 		}
-		fmt.Println("Sleep 10 seconds")
-		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
+		fmt.Println("Sleep 5 seconds")
+		time.Sleep(time.Second * 5) // 每隔 5 秒获取一次记录
 	}
 }
