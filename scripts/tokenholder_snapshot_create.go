@@ -17,7 +17,7 @@ func main() {
 	ctx := context.TODO()
 
 	opts := options.Find()
-	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
+	opts.SetSort(bson.D{{"blocknumber", 1}})
 	opts.SetLimit(2000)
 
 	balancesMap := make(map[string]*big.Float)

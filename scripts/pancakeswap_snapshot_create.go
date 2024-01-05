@@ -11,13 +11,10 @@ import (
 )
 
 func main() {
-	totalSupply := new(big.Float)
-	totalSupply.SetString("300000000")
-
 	ctx := context.TODO()
 
 	opts := options.Find()
-	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
+	opts.SetSort(bson.D{{"blocknumber", 1}})
 	opts.SetLimit(2000)
 
 	// date => totalBuyVolume
