@@ -27,7 +27,7 @@ func main() {
 	var snapshotCursorDate = "2023-09-25"
 
 	for {
-		fmt.Println("开始获取数据:", snapshotCursorDate)
+		fmt.Println("Start fetching data:", snapshotCursorDate)
 		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
 		cursor, err := collection.Find(ctx, bson.M{"aggregate.date": bson.M{"$gte": snapshotCursorDate}}, opts)
 		if err != nil {
@@ -55,7 +55,6 @@ func main() {
 			}
 			from := abstract["from"].(string)
 			to := abstract["to"].(string)
-			// 使用 *big.Float 处理大数
 			amount, ok := new(big.Float).SetString(abstract["amount"].(string))
 			if !ok {
 				fmt.Println(abstract["amount"])
