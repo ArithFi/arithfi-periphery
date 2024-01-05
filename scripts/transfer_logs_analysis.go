@@ -27,7 +27,7 @@ func main() {
 
 	opts := options.Find()
 	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
-	opts.SetLimit(200)
+	opts.SetLimit(1000)
 
 	for {
 		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
@@ -42,9 +42,6 @@ func main() {
 			if err := cursor.Decode(&log); err != nil {
 				continue
 			}
-			// 如果已经存在摘要，则先跳过该记录
-			// 后续可以增加检查逻辑，验算摘要内容
-
 			topics, ok := log["topics"].(bson.A)
 			if !ok {
 				fmt.Println(log["topics"])
@@ -82,10 +79,10 @@ func main() {
 				return
 			}
 
-			fmt.Println("更新记录成功", log["blocknumber"])
+			fmt.Println("更新记录成功", log["blocknumber"], date)
 			fromBlock = log["blocknumber"].(string)
 		}
-		fmt.Println("Sleep 10 seconds")
-		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
+		fmt.Println("Sleep 5 seconds")
+		time.Sleep(time.Second * 5) // 每隔 10 秒获取一次记录
 	}
 }
