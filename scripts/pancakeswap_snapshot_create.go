@@ -112,7 +112,7 @@ func main() {
 				snapshotMap[date][from]["totalSellTxs"].Add(snapshotMap[date][from]["totalSellTxs"], big.NewFloat(1))
 			}
 
-			if date > snapshotCursorDate || date == today {
+			if date > snapshotCursorDate || date <= today {
 				tradersArray := make([]bson.M, 0)
 				for address, metrics := range snapshotMap[snapshotCursorDate] {
 					if metrics["totalSellVolume"] == nil {

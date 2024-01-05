@@ -75,7 +75,7 @@ func main() {
 			balancesMap[to].Add(balancesMap[to], amount)
 			snapshotMap[date] = balancesMap
 
-			if date > snapshotCursorDate || date == today {
+			if date > snapshotCursorDate || date <= today {
 				var snapshotArray []bson.M
 				for address, balance := range snapshotMap[snapshotCursorDate] {
 					if balance.Cmp(big.NewFloat(0)) > 0 {
