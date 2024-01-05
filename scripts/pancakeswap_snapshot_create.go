@@ -100,16 +100,16 @@ func main() {
 				for address, metrics := range snapshotMap[snapshotCursorDate] {
 					totalSellVolume := metrics["totalSellVolume"]
 					totalBuyVolume := metrics["totalBuyVolume"]
-					totalSellTxs := metrics["totalSellTxs"]
-					totalBuyTxs := metrics["totalBuyTxs"]
+					totalSellTxs, _ := metrics["totalSellTxs"].Int64()
+					totalBuyTxs, _ := metrics["totalBuyTxs"].Int64()
 					tradersArray = append(tradersArray, bson.M{
 						"address":                 address,
 						"total_sell_volume":       totalSellVolume.String(),
 						"total_buy_volume":        totalBuyVolume.String(),
 						"total_volume":            new(big.Float).Add(totalSellVolume, totalBuyVolume).String(),
-						"total_sell_transactions": totalSellTxs.Int64(),
-						"total_buy_transactions":  totalBuyTxs.Int64(),
-						"total_transactions":      new(big.Float).Add(totalSellTxs, totalBuyTxs).Int64(),
+						"total_sell_transactions": totalSellTxs,
+						"total_buy_transactions":  totalBuyTxs,
+						"total_transactions":      totalSellTxs + totalBuyTxs,
 					})
 				}
 				var abstract bson.M
