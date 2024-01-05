@@ -159,7 +159,7 @@ func main() {
 				if err != nil {
 					fmt.Println(err)
 				}
-				fmt.Println("Snapshot updated:", date)
+				fmt.Println("Snapshot updated:", date, "from:", from, "to:", to)
 			}
 			snapshotCursorDate = date
 		}
