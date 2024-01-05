@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	var fromBlock = "0"
 	totalSupply := new(big.Float)
 	totalSupply.SetString("300000000")
 
@@ -31,7 +30,7 @@ func main() {
 
 	for {
 		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
-		cursor, err := collection.Find(ctx, bson.M{"blocknumber": bson.M{"$gte": fromBlock}}, opts)
+		cursor, err := collection.Find(ctx, bson.M{"date": bson.M{"$gte": snapshotCursorDate}}, opts)
 		if err != nil {
 			return
 		}
@@ -49,7 +48,7 @@ func main() {
 				return
 			}
 			date := aggregate["date"].(string)
-			totalTransfersMap[date]++
+			totalTransfersMap[date] = totalTransfersMap[date] + 1
 			abstract, ok := log["abstract"].(bson.M)
 			if !ok {
 				fmt.Println(log["abstract"])
@@ -78,11 +77,6 @@ func main() {
 			snapshotMap[date] = balancesMap
 
 			if date > snapshotCursorDate {
-				// 准备更新snapshot
-				fmt.Println("准备更新snapshot", date)
-				fmt.Println(snapshotMap[date])
-				// 需要将snapshotMap[date]转换成数组,获取每个地址的余额
-				// [{address: '', quantity: '', percentage: ''}, {address: '', balance: '', percentage: ''}, ...]
 				var snapshotArray []bson.M
 				for address, balance := range snapshotMap[date] {
 					snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
@@ -91,12 +85,12 @@ func main() {
 				abstract = make(bson.M)
 				abstract["holders"] = len(snapshotArray)
 				abstract["total_transfers"] = totalTransfersMap[date]
-				// 插入到数据库，chain-bsc.tokenholder-snapshot
 				collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
-				_, err := collection.InsertOne(ctx, bson.M{"date": date, "abstract": abstract, "holders": snapshotArray})
+				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
 				if err != nil {
 					fmt.Println(err)
 				}
+				fmt.Println("Snapshot updated:", date)
 				snapshotCursorDate = date
 			}
 		}
