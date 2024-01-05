@@ -160,6 +160,8 @@ func main() {
 					fmt.Println(err)
 				}
 				fmt.Println("Snapshot updated:", date, "from:", from, "to:", to)
+			} else {
+				fmt.Println("None pancakeswap transactions")
 			}
 			snapshotCursorDate = date
 		}
