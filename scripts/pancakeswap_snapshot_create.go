@@ -111,7 +111,7 @@ func main() {
 			}
 
 			if date > snapshotCursorDate {
-				var tradersArray []bson.M
+				tradersArray := make([]bson.M, 0)
 				for address, metrics := range snapshotMap[snapshotCursorDate] {
 					if metrics["totalSellVolume"] == nil {
 						metrics["totalSellVolume"] = new(big.Float)
