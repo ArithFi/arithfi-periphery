@@ -58,12 +58,10 @@ func main() {
 			}
 			from := abstract["from"].(string)
 			to := abstract["to"].(string)
-			// aggregate["amount"]
-
 			// 使用 *big.Float 处理大数
-			amount, ok := new(big.Float).SetString(aggregate["amount"].(string))
+			amount, ok := new(big.Float).SetString(abstract["amount"].(string))
 			if !ok {
-				fmt.Println(aggregate["amount"])
+				fmt.Println(abstract["amount"])
 				fmt.Println("无法获取amount字段或者amount字段不是字符串类型")
 				return
 			}
