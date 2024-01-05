@@ -94,6 +94,6 @@ func main() {
 			}
 		}
 		fmt.Println("Sleep 10 seconds")
-		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
+		time.Sleep(time.Second * 10)
 	}
 }

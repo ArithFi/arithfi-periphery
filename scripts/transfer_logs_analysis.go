@@ -14,7 +14,7 @@ import (
 // This code can run continuously.
 // The function is to retrieve transfer information from MongoDB, and analyze and expand the fields of the information.
 
-// ConvertWeiToEth 将 wei 单位转换为 ETH 单位。
+// ConvertWeiToEth is used to convert wei to eth.
 func ConvertWeiToEth(wei *big.Int) *big.Float {
 	weiInEth := new(big.Float).SetInt(wei)
 	ethValue := new(big.Float).Quo(weiInEth, big.NewFloat(1e18))
@@ -78,6 +78,6 @@ func main() {
 			fromBlock = log["blocknumber"].(string)
 		}
 		fmt.Println("Sleep 10 seconds")
-		time.Sleep(time.Second * 10) // 每隔 10 秒获取一次记录
+		time.Sleep(time.Second * 10)
 	}
 }
