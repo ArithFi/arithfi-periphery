@@ -71,6 +71,15 @@ func main() {
 				}
 				totalBuyVolumeMap[date].Add(totalBuyVolumeMap[date], amount)
 				totalBuyTxsMap[date]++
+				if snapshotMap[date] == nil {
+					snapshotMap[date] = make(map[string]map[string]*big.Float)
+				}
+				if snapshotMap[date][to] == nil {
+					snapshotMap[date][to] = make(map[string]*big.Float)
+				}
+				if snapshotMap[date][to]["totalSellVolume"] == nil {
+					snapshotMap[date][to]["totalSellVolume"] = new(big.Float)
+				}
 				if snapshotMap[date][to]["totalBuyVolume"] == nil {
 					snapshotMap[date][to]["totalBuyVolume"] = new(big.Float)
 				}
@@ -85,6 +94,12 @@ func main() {
 				}
 				totalSellVolumeMap[date].Add(totalSellVolumeMap[date], amount)
 				totalSellTxsMap[date]++
+				if snapshotMap[date] == nil {
+					snapshotMap[date] = make(map[string]map[string]*big.Float)
+				}
+				if snapshotMap[date][from] == nil {
+					snapshotMap[date][from] = make(map[string]*big.Float)
+				}
 				if snapshotMap[date][from]["totalSellVolume"] == nil {
 					snapshotMap[date][from]["totalSellVolume"] = new(big.Float)
 				}
