@@ -19,7 +19,7 @@ func main() {
 
 	opts := options.Find()
 	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
-	opts.SetLimit(4000)
+	opts.SetLimit(1000)
 
 	// 维护一个map，用于存储每个地址的总额
 	balancesMap := make(map[string]*big.Float)
@@ -85,7 +85,7 @@ func main() {
 				// [{address: '', quantity: '', percentage: ''}, {address: '', balance: '', percentage: ''}, ...]
 				var snapshotArray []bson.M
 				for address, balance := range snapshotMap[date] {
-					snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance, "percentage": new(big.Float).Quo(balance, totalSupply)})
+					snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
 				}
 				var abstract bson.M
 				abstract = make(bson.M)
