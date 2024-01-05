@@ -30,6 +30,8 @@ func main() {
 	snapshotMap := make(map[string]map[string]map[string]*big.Float)
 
 	var snapshotCursorDate = "2023-09-26"
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	today := time.Now().In(loc).Format("2006-01-02")
 
 	for {
 		fmt.Println("Start fetching data:", snapshotCursorDate)
@@ -110,7 +112,7 @@ func main() {
 				snapshotMap[date][from]["totalSellTxs"].Add(snapshotMap[date][from]["totalSellTxs"], big.NewFloat(1))
 			}
 
-			if date > snapshotCursorDate {
+			if date > snapshotCursorDate || date == today {
 				tradersArray := make([]bson.M, 0)
 				for address, metrics := range snapshotMap[snapshotCursorDate] {
 					if metrics["totalSellVolume"] == nil {

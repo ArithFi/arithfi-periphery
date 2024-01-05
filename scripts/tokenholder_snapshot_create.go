@@ -25,6 +25,8 @@ func main() {
 	totalTransfersMap := make(map[string]int)
 
 	var snapshotCursorDate = "2023-09-25"
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	today := time.Now().In(loc).Format("2006-01-02")
 
 	for {
 		fmt.Println("Start fetching data:", snapshotCursorDate)
@@ -73,7 +75,7 @@ func main() {
 			balancesMap[to].Add(balancesMap[to], amount)
 			snapshotMap[date] = balancesMap
 
-			if date > snapshotCursorDate {
+			if date > snapshotCursorDate || date == today {
 				var snapshotArray []bson.M
 				for address, balance := range snapshotMap[snapshotCursorDate] {
 					if balance.Cmp(big.NewFloat(0)) > 0 {
