@@ -52,7 +52,6 @@ func main() {
 			}
 			date := aggregate["date"].(string)
 			totalTransfersMap[date] = totalTransfersMap[date] + 1
-			fmt.Println("新总转账次数", date, ":", totalTransfersMap[date])
 			abstract, ok := log["abstract"].(bson.M)
 			if !ok {
 				fmt.Println(log["abstract"])
