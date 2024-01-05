@@ -29,7 +29,7 @@ func main() {
 	// date => address => {totalBuyVolume, totalSellVolume, totalBuyTxs, totalSellTxs}
 	snapshotMap := make(map[string]map[string]map[string]*big.Float)
 
-	var snapshotCursorDate = "2023-09-25"
+	var snapshotCursorDate = "2023-09-26"
 
 	for {
 		fmt.Println("Start fetching data:", snapshotCursorDate)
@@ -115,6 +115,12 @@ func main() {
 				var abstract bson.M
 				abstract = make(bson.M)
 				abstract["traders"] = len(tradersArray)
+				if totalBuyVolumeMap[snapshotCursorDate] == nil {
+					totalBuyVolumeMap[snapshotCursorDate] = new(big.Float)
+				}
+				if totalSellVolumeMap[snapshotCursorDate] == nil {
+					totalSellVolumeMap[snapshotCursorDate] = new(big.Float)
+				}
 				abstract["total_buy_transactions"] = totalBuyTxsMap[snapshotCursorDate]
 				abstract["total_sell_transactions"] = totalSellTxsMap[snapshotCursorDate]
 				abstract["total_transactions"] = totalBuyTxsMap[snapshotCursorDate] + totalSellTxsMap[snapshotCursorDate]
