@@ -25,8 +25,6 @@ func main() {
 	totalTransfersMap := make(map[string]int)
 
 	var snapshotCursorDate = "2023-09-25"
-	loc, _ := time.LoadLocation("Asia/Shanghai")
-	today := time.Now().In(loc).Format("2006-01-02")
 
 	for {
 		fmt.Println("Start fetching data:", snapshotCursorDate)
@@ -75,25 +73,23 @@ func main() {
 			balancesMap[to].Add(balancesMap[to], amount)
 			snapshotMap[date] = balancesMap
 
-			if date > snapshotCursorDate || date <= today {
-				var snapshotArray []bson.M
-				for address, balance := range snapshotMap[snapshotCursorDate] {
-					if balance.Cmp(big.NewFloat(0)) > 0 {
-						snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
-					}
+			var snapshotArray []bson.M
+			for address, balance := range snapshotMap[date] {
+				if balance.Cmp(big.NewFloat(0)) > 0 {
+					snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
 				}
-				var abstract bson.M
-				abstract = make(bson.M)
-				abstract["holders"] = len(snapshotArray)
-				abstract["total_transfers"] = totalTransfersMap[snapshotCursorDate]
-				collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
-				_, err := collection.UpdateOne(ctx, bson.M{"date": snapshotCursorDate}, bson.M{"$set": bson.M{"abstract": abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
-				if err != nil {
-					fmt.Println(err)
-				}
-				fmt.Println("Snapshot updated:", snapshotCursorDate, "Next date:", date)
-				snapshotCursorDate = date
 			}
+			var _abstract bson.M
+			_abstract = make(bson.M)
+			_abstract["holders"] = len(snapshotArray)
+			_abstract["total_transfers"] = totalTransfersMap[date]
+			collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
+			_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Println("Snapshot updated:", date)
+			snapshotCursorDate = date
 		}
 		fmt.Println("Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
