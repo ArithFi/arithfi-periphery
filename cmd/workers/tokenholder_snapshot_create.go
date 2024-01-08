@@ -22,7 +22,7 @@ func main() {
 
 	balancesMap := make(map[string]*big.Float)
 	snapshotMap := make(map[string]map[string]*big.Float)
-	totalTransfersMap := make(map[string]int)
+	totalTransfers := 0
 
 	var snapshotCursorDate = "2023-09-25"
 
@@ -47,7 +47,7 @@ func main() {
 				return
 			}
 			date := aggregate["date"].(string)
-			totalTransfersMap[date]++
+			totalTransfers++
 			abstract, ok := log["abstract"].(bson.M)
 			if !ok {
 				fmt.Println("Unable to retrieve the abstract field or the abstract field is not of slice type.")
@@ -79,16 +79,19 @@ func main() {
 					snapshotArray = append(snapshotArray, bson.M{"address": address, "quantity": balance.String(), "percentage": new(big.Float).Quo(balance, totalSupply).String()})
 				}
 			}
-			var _abstract bson.M
-			_abstract = make(bson.M)
-			_abstract["holders"] = len(snapshotArray)
-			_abstract["total_transfers"] = totalTransfersMap[date]
-			collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
-			_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
-			if err != nil {
-				fmt.Println(err)
+
+			if date > snapshotCursorDate {
+				var _abstract bson.M
+				_abstract = make(bson.M)
+				_abstract["holders"] = len(snapshotArray)
+				_abstract["total_transfers"] = totalTransfers
+				collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
+				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
+				if err != nil {
+					fmt.Println(err)
+				}
+				fmt.Println("Snapshot updated:", date, "from:", from, "to:", to)
 			}
-			fmt.Println("Snapshot updated:", date, "from:", from, "to:", to)
 			snapshotCursorDate = date
 		}
 		fmt.Println("Sleep 10 seconds")
