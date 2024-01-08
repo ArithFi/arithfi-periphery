@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"math/big"
 	"time"
@@ -42,10 +43,17 @@ func main() {
 				fmt.Println(err)
 				continue
 			}
-			if lockMap[log["_id"].(string)] {
+			if id, ok := log["_id"].(primitive.ObjectID); ok {
+				idHex := id.Hex()
+				if lockMap[idHex] {
+					continue
+				} else {
+					lockMap[idHex] = true
+				}
+			} else {
+				fmt.Println("Unable to retrieve the _id field or the _id field is not of ObjectID type.")
 				continue
 			}
-			lockMap[log["_id"].(string)] = true
 			aggregate, ok := log["aggregate"].(bson.M)
 			if !ok {
 				fmt.Println("Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
