@@ -22,6 +22,7 @@ func main() {
 
 	balancesMap := make(map[string]*big.Float)
 	snapshotMap := make(map[string]map[string]*big.Float)
+	lockMap := make(map[string]bool)
 	totalTransfers := 0
 
 	var snapshotCursorDate = "2023-09-25"
@@ -41,6 +42,10 @@ func main() {
 				fmt.Println(err)
 				continue
 			}
+			if lockMap[log["_id"].(string)] {
+				continue
+			}
+			lockMap[log["_id"].(string)] = true
 			aggregate, ok := log["aggregate"].(bson.M)
 			if !ok {
 				fmt.Println("Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
