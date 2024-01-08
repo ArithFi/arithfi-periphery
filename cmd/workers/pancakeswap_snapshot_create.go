@@ -139,15 +139,15 @@ func main() {
 					if metrics["totalBuyTxs"] == nil {
 						metrics["totalBuyTxs"] = new(big.Float)
 					}
-					totalSellVolume := metrics["totalSellVolume"]
-					totalBuyVolume := metrics["totalBuyVolume"]
+					totalSellVolume, _ := metrics["totalSellVolume"].Float64()
+					totalBuyVolume, _ := metrics["totalBuyVolume"].Float64()
 					totalSellTxs, _ := metrics["totalSellTxs"].Int64()
 					totalBuyTxs, _ := metrics["totalBuyTxs"].Int64()
 					tradersArray = append(tradersArray, bson.M{
 						"address":                 address,
-						"total_sell_volume":       totalSellVolume.String(),
-						"total_buy_volume":        totalBuyVolume.String(),
-						"total_volume":            new(big.Float).Add(totalSellVolume, totalBuyVolume).String(),
+						"total_sell_volume":       totalSellVolume,
+						"total_buy_volume":        totalBuyVolume,
+						"total_volume":            totalSellVolume + totalBuyVolume,
 						"total_sell_transactions": totalSellTxs,
 						"total_buy_transactions":  totalBuyTxs,
 						"total_transactions":      totalBuyTxs + totalSellTxs,
