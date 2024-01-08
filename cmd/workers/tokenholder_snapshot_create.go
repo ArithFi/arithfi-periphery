@@ -93,18 +93,16 @@ func main() {
 				}
 			}
 
-			if date > snapshotCursorDate {
-				var _abstract bson.M
-				_abstract = make(bson.M)
-				_abstract["holders"] = len(snapshotArray)
-				_abstract["total_transfers"] = totalTransfers
-				collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
-				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
-				if err != nil {
-					fmt.Println(err)
-				}
-				fmt.Println("Snapshot updated:", date, "holders:", len(snapshotArray), "total_transfers:", totalTransfers)
+			var _abstract bson.M
+			_abstract = make(bson.M)
+			_abstract["holders"] = len(snapshotArray)
+			_abstract["total_transfers"] = totalTransfers
+			collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
+			_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
+			if err != nil {
+				fmt.Println(err)
 			}
+			fmt.Println("Snapshot updated:", date, "holders:", len(snapshotArray), "total_transfers:", totalTransfers)
 			snapshotCursorDate = date
 		}
 		fmt.Println("Sleep 10 seconds")
