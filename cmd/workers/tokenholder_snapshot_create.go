@@ -90,7 +90,7 @@ func main() {
 				if err != nil {
 					fmt.Println(err)
 				}
-				fmt.Println("Snapshot updated:", date, "from:", from, "to:", to)
+				fmt.Println("Snapshot updated:", date, "holders:", len(snapshotArray), "total_transfers:", totalTransfers)
 			}
 			snapshotCursorDate = date
 		}
