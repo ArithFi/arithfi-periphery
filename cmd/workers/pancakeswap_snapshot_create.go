@@ -165,9 +165,9 @@ func main() {
 				_abstract["total_buy_transactions"] = totalBuyTxsMap[date]
 				_abstract["total_sell_transactions"] = totalSellTxsMap[date]
 				_abstract["total_transactions"] = totalBuyTxsMap[date] + totalSellTxsMap[date]
-				_abstract["total_buy_volume"] = totalBuyVolumeMap[date].String()
-				_abstract["total_sell_volume"] = totalSellVolumeMap[date].String()
-				_abstract["total_volume"] = new(big.Float).Add(totalSellVolumeMap[date], totalBuyVolumeMap[date]).String()
+				_abstract["total_buy_volume"], _ = totalBuyVolumeMap[date].Float64()
+				_abstract["total_sell_volume"], _ = totalSellVolumeMap[date].Float64()
+				_abstract["total_volume"], _ = new(big.Float).Add(totalSellVolumeMap[date], totalBuyVolumeMap[date]).Float64()
 				collection := mongo.MONGODB.Database("chain-bsc").Collection("pancakeswap-snapshot")
 				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "traders": tradersArray}}, options.Update().SetUpsert(true))
 				if err != nil {
