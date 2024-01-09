@@ -9,11 +9,14 @@ import (
 )
 
 func main() {
-	fromId := int64(0)
+	lastId := int64(-1)
+
+	ctx := context.TODO()
+	collection := mongo.MONGODB.Database("off-chain").Collection("futures-positions")
 
 	for {
-		log.Println("Scan Futures Tradings from id", fromId)
-		actions, err := offchain.GetFuturesTradings(fromId)
+		log.Println("Scan Futures Tradings from id", lastId)
+		actions, err := offchain.GetFuturesTradings(lastId)
 		if err != nil {
 			log.Println("Scan Futures Tradings err", err)
 			continue
@@ -22,105 +25,146 @@ func main() {
 			log.Println("Scan Futures Tradings empty")
 			break
 		}
-		fromId = actions[len(actions)-1].PositionIndex + 1
+		lastId = actions[len(actions)-1].PositionIndex
 		for _, action := range actions {
 			switch action.OrderType {
 			case "MARKET_ORDER_FEE":
-				handlerMarketOrderFee(&action)
+				_, err := collection.InsertOne(ctx, bson.D{
+					{"positionIndex", action.PositionIndex},
+					{"product", action.Product},
+					{"positionStatus", "open"},
+					{"timeStamp", action.TimeStamp},
+					{"leverage", action.Leverage},
+					{"positionSize", float64(action.Leverage) * action.Margin},
+					{"mode", action.Mode},
+					{"direction", action.Direction},
+					{"margin", action.Margin},
+					{"initialMargin", action.Margin},
+					{"walletAddress", action.WalletAddress},
+					{"kolAddress", action.KolAddress},
+					{"openFees", action.Fees},
+					{"openPrice", action.OrderPrice},
+				})
+				if err != nil {
+					return
+				}
+				log.Println("MARKET_ORDER_FEE:", action.PositionIndex)
 				break
 			case "MARKET_CLOSE_FEE":
-				handlerMarketCloseFee(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"closeFees": action.Fees, "positionStatus": "closed"}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "LIMIT_CANCEL":
-				handlerLimitCancel(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"positionStatus": "cancelled"}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "LIMIT_EDIT":
-				handlerLimitEdit(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"entryPrice": action.OrderPrice}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "LIMIT_ORDER_FEE":
-				handlerLimitOrderFee(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{
+						"openPrice":      action.OrderPrice,
+						"openFees":       action.Fees,
+						"positionStatus": "open",
+					}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "LIMIT_REQUEST":
-				handlerLimitRequest(&action)
+				_, err := collection.InsertOne(ctx, bson.D{
+					{"positionIndex", action.PositionIndex},
+					{"product", action.Product},
+					{"positionStatus", "pending"},
+					{"timeStamp", action.TimeStamp},
+					{"leverage", action.Leverage},
+					{"positionSize", float64(action.Leverage) * action.Margin},
+					{"mode", action.Mode},
+					{"direction", action.Direction},
+					{"margin", action.Margin},
+					{"initialMargin", action.Margin},
+					{"walletAddress", action.WalletAddress},
+					{"kolAddress", action.KolAddress},
+					{"entryPrice", action.OrderPrice},
+				})
+				if err != nil {
+					return
+				}
 				break
 			case "MARKET_LIQUIDATION":
-				handlerMarketLiquidation(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"positionSize": 0, "positionStatus": "closed", "closeFees": 0}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "MARKET_ORDER_ADD":
-				handlerMarketOrderAdd(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"margin": action.Margin}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "SL_ORDER_FEE":
-				handlerSLOrderFee(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "TP_ORDER_FEE":
-				handlerTPOrderFee(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			case "TPSL_EDIT":
-				handlerTPSLEdit(&action)
+				_, err := collection.UpdateOne(
+					ctx,
+					bson.M{"positionIndex": action.PositionIndex},
+					bson.M{"$set": bson.M{"stopLossPrice": action.StopLossPrice, "takeProfitPrice": action.TakeProfitPrice}},
+				)
+				if err != nil {
+					return
+				}
 				break
 			}
 		}
 	}
-}
-
-func handlerMarketOrderFee(action *offchain.Action) {
-	ctx := context.TODO()
-	collection := mongo.MONGODB.Database("off-chain").Collection("futures-positions")
-	_, err := collection.InsertOne(ctx, bson.D{
-		{"positionIndex", action.PositionIndex},
-		{"product", action.Product},
-		{"timeStamp", action.TimeStamp},
-		{"leverage", action.Leverage},
-		{"positionSize", float64(action.Leverage) * action.Margin},
-		{"mode", action.Mode},
-		{"direction", action.Direction},
-		{"margin", action.Margin},
-		{"initialMargin", action.Margin},
-		{"walletAddress", action.WalletAddress},
-		{"kolAddress", action.KolAddress},
-		{"openFees", action.Fees},
-	})
-	if err != nil {
-		return
-	}
-}
-
-func handlerMarketCloseFee(action *offchain.Action) {
-	//log.Println("MarketCloseFee", action)
-}
-
-func handlerLimitCancel(action *offchain.Action) {
-	//log.Println("LimitCancel", action)
-}
-
-func handlerLimitEdit(action *offchain.Action) {
-	//log.Println("LimitEdit", action)
-}
-
-func handlerLimitOrderFee(action *offchain.Action) {
-	//log.Println("LimitOrderFee", action)
-}
-
-func handlerLimitRequest(action *offchain.Action) {
-	//log.Println("LimitRequest", action)
-}
-
-func handlerMarketLiquidation(action *offchain.Action) {
-	//log.Println("MarketLiquidation", action)
-}
-
-func handlerMarketOrderAdd(action *offchain.Action) {
-	//log.Println("MarketOrderAdd", action)
-}
-
-func handlerSLOrderFee(action *offchain.Action) {
-	//log.Println("SLOrderFee", action)
-}
-
-func handlerTPOrderFee(action *offchain.Action) {
-	//log.Println("TPOrderFee", action)
-}
-
-func handlerTPSLEdit(action *offchain.Action) {
-	//log.Println("TPSLEdit", action)
 }

@@ -29,6 +29,7 @@ func main() {
 	var snapshotCursorDate = "2023-09-25"
 
 	transferLogsCollection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
+	tokenHolderSnapshotCollection := mongo.MONGODB.Database("chain-bsc").Collection("tokenHolder-snapshot")
 
 	for {
 		log.Println("Start fetching data:", snapshotCursorDate)
@@ -97,7 +98,6 @@ func main() {
 			_abstract = make(bson.M)
 			_abstract["holders"] = len(snapshotArray)
 			_abstract["totalTransfers"] = totalTransfers
-			tokenHolderSnapshotCollection := mongo.MONGODB.Database("chain-bsc").Collection("tokenHolder-snapshot")
 			_, err := tokenHolderSnapshotCollection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
 			if err != nil {
 				log.Println(err)
