@@ -59,6 +59,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("MARKET_CLOSE_FEE:", action.PositionIndex)
 				break
 			case "LIMIT_CANCEL":
 				_, err := collection.UpdateOne(
@@ -69,6 +70,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("LIMIT_CANCEL:", action.PositionIndex)
 				break
 			case "LIMIT_EDIT":
 				_, err := collection.UpdateOne(
@@ -79,6 +81,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("LIMIT_EDIT:", action.PositionIndex)
 				break
 			case "LIMIT_ORDER_FEE":
 				_, err := collection.UpdateOne(
@@ -93,6 +96,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("LIMIT_ORDER_FEE:", action.PositionIndex)
 				break
 			case "LIMIT_REQUEST":
 				_, err := collection.InsertOne(ctx, bson.D{
@@ -113,6 +117,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("LIMIT_REQUEST:", action.PositionIndex)
 				break
 			case "MARKET_LIQUIDATION":
 				_, err := collection.UpdateOne(
@@ -123,6 +128,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("MARKET_LIQUIDATION:", action.PositionIndex)
 				break
 			case "MARKET_ORDER_ADD":
 				_, err := collection.UpdateOne(
@@ -133,6 +139,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("MARKET_ORDER_ADD:", action.PositionIndex)
 				break
 			case "SL_ORDER_FEE":
 				_, err := collection.UpdateOne(
@@ -143,6 +150,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("SL_ORDER_FEE:", action.PositionIndex)
 				break
 			case "TP_ORDER_FEE":
 				_, err := collection.UpdateOne(
@@ -153,6 +161,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("TP_ORDER_FEE:", action.PositionIndex)
 				break
 			case "TPSL_EDIT":
 				_, err := collection.UpdateOne(
@@ -163,6 +172,7 @@ func main() {
 				if err != nil {
 					break
 				}
+				log.Println("TPSL_EDIT:", action.PositionIndex)
 				break
 			}
 		}
