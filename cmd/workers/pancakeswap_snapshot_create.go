@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"math/big"
 	"time"
 )
@@ -35,21 +35,21 @@ func main() {
 	var snapshotCursorDate = "2023-09-26"
 
 	for {
-		fmt.Println("Start fetching data:", snapshotCursorDate)
+		log.Println("Start fetching data:", snapshotCursorDate)
 		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
 		cursor, err := collection.Find(ctx, bson.M{"aggregate.date": bson.M{"$gte": snapshotCursorDate}}, opts)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return
 		}
 		defer cursor.Close(ctx)
 		for cursor.Next(ctx) {
-			var log bson.M
-			if err := cursor.Decode(&log); err != nil {
-				fmt.Println(err)
+			var _log bson.M
+			if err := cursor.Decode(&_log); err != nil {
+				log.Println(err)
 				continue
 			}
-			if id, ok := log["_id"].(primitive.ObjectID); ok {
+			if id, ok := _log["_id"].(primitive.ObjectID); ok {
 				idHex := id.Hex()
 				if lockMap[idHex] {
 					continue
@@ -57,26 +57,25 @@ func main() {
 					lockMap[idHex] = true
 				}
 			} else {
-				fmt.Println("Unable to retrieve the _id field or the _id field is not of ObjectID type.")
+				log.Println("Unable to retrieve the _id field or the _id field is not of ObjectID type.")
 				continue
 			}
-			aggregate, ok := log["aggregate"].(bson.M)
+			aggregate, ok := _log["aggregate"].(bson.M)
 			if !ok {
-				fmt.Println("Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
+				log.Println("Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
 				return
 			}
 			date := aggregate["date"].(string)
-			abstract, ok := log["abstract"].(bson.M)
+			abstract, ok := _log["abstract"].(bson.M)
 			if !ok {
-				fmt.Println("Unable to retrieve the abstract field or the abstract field is not of slice type.")
+				log.Println("Unable to retrieve the abstract field or the abstract field is not of slice type.")
 				return
 			}
 			from := abstract["from"].(string)
 			to := abstract["to"].(string)
 			amount, ok := new(big.Float).SetString(abstract["amount"].(string))
 			if !ok {
-				fmt.Println(abstract["amount"])
-				fmt.Println("Unable to retrieve the amount field or the amount field is not of string type.")
+				log.Println("Unable to retrieve the amount field or the amount field is not of string type.")
 				return
 			}
 			if from == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" { // This is the address of the PancakeSwap contract, Buy
@@ -171,15 +170,15 @@ func main() {
 				collection := mongo.MONGODB.Database("chain-bsc").Collection("pancakeswap-snapshot")
 				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "traders": tradersArray}}, options.Update().SetUpsert(true))
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 				}
-				fmt.Println("Snapshot updated:", date, "from:", from, "to:", to)
+				log.Println("Snapshot updated:", date, "from:", from, "to:", to)
 			} else {
-				fmt.Println("None pancakeswap transactions")
+				log.Println("None pancakeswap transactions")
 			}
 			snapshotCursorDate = date
 		}
-		fmt.Println("Sleep 10 seconds")
+		log.Println("Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }

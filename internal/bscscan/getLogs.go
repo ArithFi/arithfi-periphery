@@ -65,8 +65,5 @@ func GetLogs(fromBlock string, toBlock string) ([]Log, error) {
 		return []Log{}, err
 	}
 
-	// 返回 result
-	fmt.Println(result)
-
 	return result.Result, nil
 }

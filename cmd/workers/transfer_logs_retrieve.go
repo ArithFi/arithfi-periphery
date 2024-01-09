@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
 	"github.com/arithfi/arithfi-periphery/internal/bscscan"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -22,7 +21,7 @@ func main() {
 	const toBlock = "latest"
 
 	for {
-		fmt.Printf("fromBlock: %s, toBlock: %s\n", fromBlock, toBlock)
+		log.Printf("fromBlock: %s, toBlock: %s\n", fromBlock, toBlock)
 		logs, err := bscscan.GetLogs(fromBlock, toBlock)
 		if err != nil {
 			log.Fatalf("Error getting logs: %v", err)
@@ -46,14 +45,14 @@ func main() {
 			_options := options.InsertMany().SetOrdered(false)
 			_, err = collection.InsertMany(ctx, documents, _options)
 			if err != nil {
-				fmt.Println("Error inserting some documents")
+				log.Println("Error inserting some documents")
 			}
-			fmt.Println("Logs inserted successfully")
+			log.Println("Logs inserted successfully")
 		} else {
-			fmt.Println("No logs to insert")
+			log.Println("No logs to insert")
 		}
 
-		fmt.Println("Sleep 10 seconds")
+		log.Println("Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }

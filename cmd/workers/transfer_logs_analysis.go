@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"math/big"
 	"strings"
 	"time"
@@ -38,27 +38,27 @@ func main() {
 		defer cursor.Close(ctx)
 
 		for cursor.Next(ctx) {
-			var log bson.M
-			if err := cursor.Decode(&log); err != nil {
+			var _log bson.M
+			if err := cursor.Decode(&_log); err != nil {
 				continue
 			}
-			topics, ok := log["topics"].(bson.A)
+			topics, ok := _log["topics"].(bson.A)
 			if !ok {
-				fmt.Println("无法获取topics字段或者topics字段不是切片类型")
+				log.Println("无法获取topics字段或者topics字段不是切片类型")
 				return
 			}
 			from, _ := topics[1].(string)
 			to, _ := topics[2].(string)
 			timeStamp := new(big.Int)
-			timeStamp.SetString(strings.TrimPrefix(log["timestamp"].(string), "0x"), 16)
+			timeStamp.SetString(strings.TrimPrefix(_log["timestamp"].(string), "0x"), 16)
 			loc, err := time.LoadLocation("Asia/Shanghai")
 			if err != nil {
-				fmt.Println("Error loading location:", err)
+				log.Println("Error loading location:", err)
 				return
 			}
 			date := time.Unix(timeStamp.Int64(), 0).In(loc).Format("2006-01-02")
 			amountWei := new(big.Int)
-			amountWei.SetString(strings.TrimPrefix(log["data"].(string), "0x"), 16)
+			amountWei.SetString(strings.TrimPrefix(_log["data"].(string), "0x"), 16)
 			amountEth := ConvertWeiToEth(amountWei)
 			abstract := bson.M{
 				"from":   "0x" + from[len(from)-40:],
@@ -69,18 +69,18 @@ func main() {
 				"date":     date,
 				"location": "Asia/Shanghai",
 			}
-			log["abstract"] = abstract
-			log["aggregate"] = aggregate
+			_log["abstract"] = abstract
+			_log["aggregate"] = aggregate
 
-			_, err = collection.UpdateOne(ctx, bson.M{"_id": log["_id"]}, bson.M{"$set": log})
+			_, err = collection.UpdateOne(ctx, bson.M{"_id": _log["_id"]}, bson.M{"$set": _log})
 			if err != nil {
 				return
 			}
 
-			fmt.Println("Update transfer_logs success, block:", log["blocknumber"], ", date:", date)
-			fromBlock = log["blocknumber"].(string)
+			log.Println("Update transfer_logs success, block:", _log["blocknumber"], ", date:", date)
+			fromBlock = _log["blocknumber"].(string)
 		}
-		fmt.Println("Sleep 10 seconds")
+		log.Println("Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }
