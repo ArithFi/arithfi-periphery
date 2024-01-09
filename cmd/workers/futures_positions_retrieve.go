@@ -54,7 +54,7 @@ func main() {
 				_, err := collection.UpdateOne(
 					ctx,
 					bson.M{"positionIndex": action.PositionIndex},
-					bson.M{"$set": bson.M{"closeFees": action.Fees, "positionStatus": "closed"}},
+					bson.M{"$set": bson.M{"closeFees": action.Fees, "positionStatus": "closed", "sellValue": action.SellValue}},
 				)
 				if err != nil {
 					break
@@ -118,7 +118,7 @@ func main() {
 				_, err := collection.UpdateOne(
 					ctx,
 					bson.M{"positionIndex": action.PositionIndex},
-					bson.M{"$set": bson.M{"positionSize": 0, "positionStatus": "closed", "closeFees": 0}},
+					bson.M{"$set": bson.M{"positionSize": 0, "positionStatus": "closed", "closeFees": 0, "sellValue": 0}},
 				)
 				if err != nil {
 					break
@@ -138,7 +138,7 @@ func main() {
 				_, err := collection.UpdateOne(
 					ctx,
 					bson.M{"positionIndex": action.PositionIndex},
-					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees}},
+					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees, "sellValue": action.SellValue}},
 				)
 				if err != nil {
 					break
@@ -148,7 +148,7 @@ func main() {
 				_, err := collection.UpdateOne(
 					ctx,
 					bson.M{"positionIndex": action.PositionIndex},
-					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees}},
+					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees, "sellValue": action.SellValue}},
 				)
 				if err != nil {
 					break

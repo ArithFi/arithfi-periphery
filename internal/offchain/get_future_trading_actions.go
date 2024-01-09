@@ -8,7 +8,7 @@ type Action struct {
 	Id              int64   `json:"id" bson:"id"`
 	PositionIndex   int64   `json:"positionIndex" bson:"positionIndex"`
 	Product         string  `json:"product" bson:"product"`
-	TimeStamp       string  `json:"timeStamp" bson:"timeStamp"`
+	TimeStamp       int64   `json:"timeStamp" bson:"timeStamp"`
 	Leverage        int64   `json:"leverage" bson:"leverage"`
 	OrderType       string  `json:"orderType" bson:"orderType"`
 	OrderPrice      float64 `json:"orderPrice" bson:"orderPrice"`
@@ -21,6 +21,7 @@ type Action struct {
 	Fees            float64 `json:"fees" bson:"fees"`
 	StopLossPrice   float64 `json:"stopLossPrice" bson:"stopLossPrice"`
 	TakeProfitPrice float64 `json:"takeProfitPrice" bson:"takeProfitPrice"`
+	SellValue       float64 `json:"sellValue" bson:"sellValue"`
 }
 
 // GetFuturesTradings 扫描这个表
@@ -40,7 +41,7 @@ LIMIT 1000
 		var id int64
 		var product string
 		var positionIndex int64
-		var timeStamp string
+		var timeStamp int64
 		var leverage int64
 		var orderType string
 		var orderPrice float64
@@ -59,6 +60,13 @@ LIMIT 1000
 		if err != nil {
 			return []Action{}, err
 		}
+
+		if direction == "1" {
+			direction = "LONG"
+		} else {
+			direction = "SHORT"
+		}
+
 		documents = append(documents, Action{
 			Id:              id,
 			PositionIndex:   positionIndex,
@@ -76,6 +84,7 @@ LIMIT 1000
 			Fees:            fees,
 			StopLossPrice:   stopLossPrice,
 			TakeProfitPrice: takeProfitPrice,
+			SellValue:       sellValue,
 		})
 	}
 	if err != nil {
