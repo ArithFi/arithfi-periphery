@@ -50,14 +50,14 @@ func main() {
 			}
 			from, _ := topics[1].(string)
 			to, _ := topics[2].(string)
-			timeStamp := new(big.Int)
-			timeStamp.SetString(strings.TrimPrefix(_log["timeStamp"].(string), "0x"), 16)
+			timestamp := new(big.Int)
+			timestamp.SetString(strings.TrimPrefix(_log["timestamp"].(string), "0x"), 16)
 			loc, err := time.LoadLocation("Asia/Shanghai")
 			if err != nil {
 				log.Println("Error loading location:", err)
 				return
 			}
-			date := time.Unix(timeStamp.Int64(), 0).In(loc).Format("2006-01-02")
+			date := time.Unix(timestamp.Int64(), 0).In(loc).Format("2006-01-02")
 			amountWei := new(big.Int)
 			amountWei.SetString(strings.TrimPrefix(_log["data"].(string), "0x"), 16)
 			amountEth := ConvertWeiToEth(amountWei)

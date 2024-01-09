@@ -9,7 +9,7 @@ type Action struct {
 	Id              int64   `json:"id" bson:"id"`
 	PositionIndex   int64   `json:"positionIndex" bson:"positionIndex"`
 	Product         string  `json:"product" bson:"product"`
-	TimeStamp       int64   `json:"timeStamp" bson:"timeStamp"`
+	Timestamp       int64   `json:"timestamp" bson:"timestamp"`
 	Leverage        int64   `json:"leverage" bson:"leverage"`
 	OrderType       string  `json:"orderType" bson:"orderType"`
 	OrderPrice      float64 `json:"orderPrice" bson:"orderPrice"`
@@ -27,7 +27,7 @@ type Action struct {
 
 // GetFuturesTradings 扫描这个表
 func GetFuturesTradings(fromId int64) ([]Action, error) {
-	query, err := mysql.MYSQL.Query(`SELECT _id, timeStamp, product, positionIndex, leverage, orderType, orderPrice, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, fees, stopLossPrice, takeProfitPrice
+	query, err := mysql.MYSQL.Query(`SELECT _id, timestamp, product, positionIndex, leverage, orderType, orderPrice, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, fees, stopLossPrice, takeProfitPrice
 FROM f_future_trading 
 WHERE _id > ? 
 ORDER By _id
@@ -66,7 +66,7 @@ LIMIT 1000
 		if err != nil {
 			panic(err)
 		}
-		timeStamp, err := time.ParseInLocation("2006-01-02 15:04:05", timeStampStr, location)
+		timestamp, err := time.ParseInLocation("2006-01-02 15:04:05", timeStampStr, location)
 		if direction == "1" {
 			direction = "LONG"
 		} else {
@@ -76,7 +76,7 @@ LIMIT 1000
 			Id:              id,
 			PositionIndex:   positionIndex,
 			Product:         product,
-			TimeStamp:       timeStamp.Unix(),
+			Timestamp:       timestamp.Unix(),
 			Leverage:        leverage,
 			OrderType:       orderType,
 			OrderPrice:      orderPrice,

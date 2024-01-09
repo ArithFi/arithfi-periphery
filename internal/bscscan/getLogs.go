@@ -10,7 +10,7 @@ import (
 
 type Log struct {
 	Address          string   `json:"address" bson:"address"`
-	TimeStamp        string   `json:"timeStamp" bson:"timeStamp"`
+	Timestamp        string   `json:"timestamp" bson:"timestamp"`
 	BlockNumber      string   `json:"blockNumber" bson:"blockNumber"`
 	BlockHash        string   `json:"blockHash" bson:"blockHash"`
 	GasPrice         string   `json:"gasPrice" bson:"gasPrice"`
