@@ -33,11 +33,12 @@ func main() {
 	snapshotMap := make(map[string]map[string]map[string]*big.Float)
 
 	var snapshotCursorDate = "2023-09-26"
+	transferLogsCollection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
+	pancakeSwapSnapshotCollection := mongo.MONGODB.Database("chain-bsc").Collection("pancakeswap-snapshot")
 
 	for {
 		log.Println("Start fetching data:", snapshotCursorDate)
-		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
-		cursor, err := collection.Find(ctx, bson.M{"aggregate.date": bson.M{"$gte": snapshotCursorDate}}, opts)
+		cursor, err := transferLogsCollection.Find(ctx, bson.M{"aggregate.date": bson.M{"$gte": snapshotCursorDate}}, opts)
 		if err != nil {
 			log.Println(err)
 			return
@@ -167,8 +168,7 @@ func main() {
 				_abstract["totalBuyVolume"], _ = totalBuyVolumeMap[date].Float64()
 				_abstract["totalSellVolume"], _ = totalSellVolumeMap[date].Float64()
 				_abstract["totalVolume"], _ = new(big.Float).Add(totalSellVolumeMap[date], totalBuyVolumeMap[date]).Float64()
-				collection := mongo.MONGODB.Database("chain-bsc").Collection("pancakeswap-snapshot")
-				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "traders": tradersArray}}, options.Update().SetUpsert(true))
+				_, err := pancakeSwapSnapshotCollection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "traders": tradersArray}}, options.Update().SetUpsert(true))
 				if err != nil {
 					log.Println(err)
 				}

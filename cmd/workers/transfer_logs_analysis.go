@@ -29,8 +29,9 @@ func main() {
 	opts.SetSort(bson.D{{"blockNumber", 1}}) // 按照blockNumber升序排序
 	opts.SetLimit(1000)
 
+	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
+
 	for {
-		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
 		cursor, err := collection.Find(ctx, bson.M{"blockNumber": bson.M{"$gte": fromBlock}}, opts)
 		if err != nil {
 			return

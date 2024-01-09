@@ -19,6 +19,9 @@ func main() {
 	var fromBlock = "0"
 	const toBlock = "latest"
 
+	ctx := context.TODO()
+	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
+
 	for {
 		log.Printf("fromBlock: %s, toBlock: %s\n", fromBlock, toBlock)
 		logs, err := bscscan.GetLogs(fromBlock, toBlock)
@@ -39,8 +42,6 @@ func main() {
 			fromBlockBigInt = fromBlockBigInt.Add(fromBlockBigInt, big.NewInt(1))
 			fromBlock = fromBlockBigInt.String()
 
-			ctx := context.TODO()
-			collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
 			_options := options.InsertMany().SetOrdered(false)
 			_, err = collection.InsertMany(ctx, documents, _options)
 			if err != nil {
