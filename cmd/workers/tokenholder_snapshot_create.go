@@ -102,7 +102,7 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
-			log.Println("Snapshot updated:", date, "holders:", len(snapshotArray), "total_transfers:", totalTransfers)
+			log.Println("Snapshot updated:", date, "holders:", len(snapshotArray), "totalTransfers:", totalTransfers)
 			snapshotCursorDate = date
 		}
 		log.Println("Sleep 10 seconds")
