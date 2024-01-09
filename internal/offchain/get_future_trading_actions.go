@@ -2,26 +2,27 @@ package offchain
 
 import (
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
+	"time"
 )
 
 type Action struct {
-	Id              int64   `json:"id" bson:"id"`
-	PositionIndex   int64   `json:"positionIndex" bson:"positionIndex"`
-	Product         string  `json:"product" bson:"product"`
-	TimeStamp       int64   `json:"timeStamp" bson:"timeStamp"`
-	Leverage        int64   `json:"leverage" bson:"leverage"`
-	OrderType       string  `json:"orderType" bson:"orderType"`
-	OrderPrice      float64 `json:"orderPrice" bson:"orderPrice"`
-	Mode            string  `json:"mode" bson:"mode"`
-	Direction       string  `json:"direction" bson:"direction"`
-	Margin          float64 `json:"margin" bson:"margin"`
-	ClosePrice      float64 `json:"closePrice" bson:"closePrice"`
-	WalletAddress   string  `json:"walletAddress" bson:"walletAddress"`
-	KolAddress      string  `json:"kolAddress" bson:"kolAddress"`
-	Fees            float64 `json:"fees" bson:"fees"`
-	StopLossPrice   float64 `json:"stopLossPrice" bson:"stopLossPrice"`
-	TakeProfitPrice float64 `json:"takeProfitPrice" bson:"takeProfitPrice"`
-	SellValue       float64 `json:"sellValue" bson:"sellValue"`
+	Id              int64     `json:"id" bson:"id"`
+	PositionIndex   int64     `json:"positionIndex" bson:"positionIndex"`
+	Product         string    `json:"product" bson:"product"`
+	TimeStamp       time.Time `json:"timeStamp" bson:"timeStamp"`
+	Leverage        int64     `json:"leverage" bson:"leverage"`
+	OrderType       string    `json:"orderType" bson:"orderType"`
+	OrderPrice      float64   `json:"orderPrice" bson:"orderPrice"`
+	Mode            string    `json:"mode" bson:"mode"`
+	Direction       string    `json:"direction" bson:"direction"`
+	Margin          float64   `json:"margin" bson:"margin"`
+	ClosePrice      float64   `json:"closePrice" bson:"closePrice"`
+	WalletAddress   string    `json:"walletAddress" bson:"walletAddress"`
+	KolAddress      string    `json:"kolAddress" bson:"kolAddress"`
+	Fees            float64   `json:"fees" bson:"fees"`
+	StopLossPrice   float64   `json:"stopLossPrice" bson:"stopLossPrice"`
+	TakeProfitPrice float64   `json:"takeProfitPrice" bson:"takeProfitPrice"`
+	SellValue       float64   `json:"sellValue" bson:"sellValue"`
 }
 
 // GetFuturesTradings 扫描这个表
@@ -41,7 +42,7 @@ LIMIT 1000
 		var id int64
 		var product string
 		var positionIndex int64
-		var timeStamp int64
+		var timeStamp time.Time
 		var leverage int64
 		var orderType string
 		var orderPrice float64
