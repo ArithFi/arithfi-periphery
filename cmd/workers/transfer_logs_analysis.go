@@ -51,7 +51,7 @@ func main() {
 			from, _ := topics[1].(string)
 			to, _ := topics[2].(string)
 			timeStamp := new(big.Int)
-			timeStamp.SetString(strings.TrimPrefix(_log["timestamp"].(string), "0x"), 16)
+			timeStamp.SetString(strings.TrimPrefix(_log["timeStamp"].(string), "0x"), 16)
 			loc, err := time.LoadLocation("Asia/Shanghai")
 			if err != nil {
 				log.Println("Error loading location:", err)
