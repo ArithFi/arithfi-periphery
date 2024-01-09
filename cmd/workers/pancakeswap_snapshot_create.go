@@ -15,7 +15,7 @@ func main() {
 	ctx := context.TODO()
 
 	opts := options.Find()
-	opts.SetSort(bson.D{{"blocknumber", 1}})
+	opts.SetSort(bson.D{{"blockNumber", 1}})
 	opts.SetLimit(2000)
 
 	// date => totalBuyVolume
@@ -143,13 +143,13 @@ func main() {
 					totalSellTxs, _ := metrics["totalSellTxs"].Int64()
 					totalBuyTxs, _ := metrics["totalBuyTxs"].Int64()
 					tradersArray = append(tradersArray, bson.M{
-						"address":                 address,
-						"total_sell_volume":       totalSellVolume,
-						"total_buy_volume":        totalBuyVolume,
-						"total_volume":            totalSellVolume + totalBuyVolume,
-						"total_sell_transactions": totalSellTxs,
-						"total_buy_transactions":  totalBuyTxs,
-						"total_transactions":      totalBuyTxs + totalSellTxs,
+						"address":               address,
+						"totalSellVolume":       totalSellVolume,
+						"totalBuyVolume":        totalBuyVolume,
+						"totalVolume":           totalSellVolume + totalBuyVolume,
+						"totalSellTransactions": totalSellTxs,
+						"totalBuyTransactions":  totalBuyTxs,
+						"totalTransactions":     totalBuyTxs + totalSellTxs,
 					})
 				}
 				var _abstract bson.M
@@ -161,12 +161,12 @@ func main() {
 				if totalSellVolumeMap[date] == nil {
 					totalSellVolumeMap[date] = new(big.Float)
 				}
-				_abstract["total_buy_transactions"] = totalBuyTxsMap[date]
-				_abstract["total_sell_transactions"] = totalSellTxsMap[date]
-				_abstract["total_transactions"] = totalBuyTxsMap[date] + totalSellTxsMap[date]
-				_abstract["total_buy_volume"], _ = totalBuyVolumeMap[date].Float64()
-				_abstract["total_sell_volume"], _ = totalSellVolumeMap[date].Float64()
-				_abstract["total_volume"], _ = new(big.Float).Add(totalSellVolumeMap[date], totalBuyVolumeMap[date]).Float64()
+				_abstract["totalBuyTransactions"] = totalBuyTxsMap[date]
+				_abstract["totalSellTransactions"] = totalSellTxsMap[date]
+				_abstract["totalTransactions"] = totalBuyTxsMap[date] + totalSellTxsMap[date]
+				_abstract["totalBuyVolume"], _ = totalBuyVolumeMap[date].Float64()
+				_abstract["totalSellVolume"], _ = totalSellVolumeMap[date].Float64()
+				_abstract["totalVolume"], _ = new(big.Float).Add(totalSellVolumeMap[date], totalBuyVolumeMap[date]).Float64()
 				collection := mongo.MONGODB.Database("chain-bsc").Collection("pancakeswap-snapshot")
 				_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "traders": tradersArray}}, options.Update().SetUpsert(true))
 				if err != nil {

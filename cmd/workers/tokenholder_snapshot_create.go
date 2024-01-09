@@ -18,7 +18,7 @@ func main() {
 	ctx := context.TODO()
 
 	opts := options.Find()
-	opts.SetSort(bson.D{{"blocknumber", 1}})
+	opts.SetSort(bson.D{{"blockNumber", 1}})
 	opts.SetLimit(2000)
 
 	balancesMap := make(map[string]*big.Float)
@@ -95,7 +95,7 @@ func main() {
 			var _abstract bson.M
 			_abstract = make(bson.M)
 			_abstract["holders"] = len(snapshotArray)
-			_abstract["total_transfers"] = totalTransfers
+			_abstract["totalTransfers"] = totalTransfers
 			collection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
 			_, err := collection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
 			if err != nil {

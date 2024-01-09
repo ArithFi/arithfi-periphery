@@ -9,23 +9,23 @@ import (
 )
 
 type Log struct {
-	Address          string   `json:"address"`
-	TimeStamp        string   `json:"timeStamp"`
-	BlockNumber      string   `json:"blockNumber"`
-	BlockHash        string   `json:"blockHash"`
-	GasPrice         string   `json:"gasPrice"`
-	GasUsed          string   `json:"gasUsed"`
-	LogIndex         string   `json:"logIndex"`
-	Data             string   `json:"data"`
-	TransactionHash  string   `json:"transactionHash"`
-	TransactionIndex string   `json:"transactionIndex"`
-	Topics           []string `json:"topics"`
+	Address          string   `json:"address" bson:"address"`
+	TimeStamp        string   `json:"timeStamp" bson:"timeStamp"`
+	BlockNumber      string   `json:"blockNumber" bson:"blockNumber"`
+	BlockHash        string   `json:"blockHash" bson:"blockHash"`
+	GasPrice         string   `json:"gasPrice" bson:"gasPrice"`
+	GasUsed          string   `json:"gasUsed" bson:"gasUsed"`
+	LogIndex         string   `json:"logIndex" bson:"logIndex"`
+	Data             string   `json:"data" bson:"data"`
+	TransactionHash  string   `json:"transactionHash" bson:"transactionHash"`
+	TransactionIndex string   `json:"transactionIndex" bson:"transactionIndex"`
+	Topics           []string `json:"topics" bson:"topics"`
 }
 
 type Result struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-	Result  []Log  `json:"result"`
+	Status  string `json:"status" bson:"status"`
+	Message string `json:"message" bson:"message"`
+	Result  []Log  `json:"result" bson:"result"`
 }
 
 func GetLogs(fromBlock string, toBlock string) ([]Log, error) {

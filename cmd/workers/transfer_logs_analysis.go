@@ -26,12 +26,12 @@ func main() {
 	ctx := context.TODO()
 
 	opts := options.Find()
-	opts.SetSort(bson.D{{"blocknumber", 1}}) // 按照blocknumber升序排序
+	opts.SetSort(bson.D{{"blockNumber", 1}}) // 按照blockNumber升序排序
 	opts.SetLimit(1000)
 
 	for {
 		collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
-		cursor, err := collection.Find(ctx, bson.M{"blocknumber": bson.M{"$gte": fromBlock}}, opts)
+		cursor, err := collection.Find(ctx, bson.M{"blockNumber": bson.M{"$gte": fromBlock}}, opts)
 		if err != nil {
 			return
 		}
@@ -77,8 +77,8 @@ func main() {
 				return
 			}
 
-			log.Println("Update transfer_logs success, block:", _log["blocknumber"], ", date:", date)
-			fromBlock = _log["blocknumber"].(string)
+			log.Println("Update transfer_logs success, block:", _log["blockNumber"], ", date:", date)
+			fromBlock = _log["blockNumber"].(string)
 		}
 		log.Println("Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
