@@ -6,23 +6,23 @@ import (
 )
 
 type Action struct {
-	Id              int64     `json:"id" bson:"id"`
-	PositionIndex   int64     `json:"positionIndex" bson:"positionIndex"`
-	Product         string    `json:"product" bson:"product"`
-	TimeStamp       time.Time `json:"timeStamp" bson:"timeStamp"`
-	Leverage        int64     `json:"leverage" bson:"leverage"`
-	OrderType       string    `json:"orderType" bson:"orderType"`
-	OrderPrice      float64   `json:"orderPrice" bson:"orderPrice"`
-	Mode            string    `json:"mode" bson:"mode"`
-	Direction       string    `json:"direction" bson:"direction"`
-	Margin          float64   `json:"margin" bson:"margin"`
-	ClosePrice      float64   `json:"closePrice" bson:"closePrice"`
-	WalletAddress   string    `json:"walletAddress" bson:"walletAddress"`
-	KolAddress      string    `json:"kolAddress" bson:"kolAddress"`
-	Fees            float64   `json:"fees" bson:"fees"`
-	StopLossPrice   float64   `json:"stopLossPrice" bson:"stopLossPrice"`
-	TakeProfitPrice float64   `json:"takeProfitPrice" bson:"takeProfitPrice"`
-	SellValue       float64   `json:"sellValue" bson:"sellValue"`
+	Id              int64   `json:"id" bson:"id"`
+	PositionIndex   int64   `json:"positionIndex" bson:"positionIndex"`
+	Product         string  `json:"product" bson:"product"`
+	TimeStamp       int64   `json:"timeStamp" bson:"timeStamp"`
+	Leverage        int64   `json:"leverage" bson:"leverage"`
+	OrderType       string  `json:"orderType" bson:"orderType"`
+	OrderPrice      float64 `json:"orderPrice" bson:"orderPrice"`
+	Mode            string  `json:"mode" bson:"mode"`
+	Direction       string  `json:"direction" bson:"direction"`
+	Margin          float64 `json:"margin" bson:"margin"`
+	ClosePrice      float64 `json:"closePrice" bson:"closePrice"`
+	WalletAddress   string  `json:"walletAddress" bson:"walletAddress"`
+	KolAddress      string  `json:"kolAddress" bson:"kolAddress"`
+	Fees            float64 `json:"fees" bson:"fees"`
+	StopLossPrice   float64 `json:"stopLossPrice" bson:"stopLossPrice"`
+	TakeProfitPrice float64 `json:"takeProfitPrice" bson:"takeProfitPrice"`
+	SellValue       float64 `json:"sellValue" bson:"sellValue"`
 }
 
 // GetFuturesTradings 扫描这个表
@@ -42,7 +42,7 @@ LIMIT 1000
 		var id int64
 		var product string
 		var positionIndex int64
-		var timeStamp time.Time
+		var timeStampStr string
 		var leverage int64
 		var orderType string
 		var orderPrice float64
@@ -57,22 +57,26 @@ LIMIT 1000
 		var stopLossPrice float64
 		var takeProfitPrice float64
 
-		err := query.Scan(&id, &timeStamp, &product, &positionIndex, &leverage, &orderType, &orderPrice, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress, &fees, &stopLossPrice, &takeProfitPrice)
+		err := query.Scan(&id, &timeStampStr, &product, &positionIndex, &leverage, &orderType, &orderPrice, &mode, &direction, &margin, &volume, &sellValue, &walletAddress, &kolAddress, &fees, &stopLossPrice, &takeProfitPrice)
 		if err != nil {
 			return []Action{}, err
 		}
 
+		location, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			panic(err)
+		}
+		timeStamp, err := time.ParseInLocation("2006-01-02 15:04:05", timeStampStr, location)
 		if direction == "1" {
 			direction = "LONG"
 		} else {
 			direction = "SHORT"
 		}
-
 		documents = append(documents, Action{
 			Id:              id,
 			PositionIndex:   positionIndex,
 			Product:         product,
-			TimeStamp:       timeStamp,
+			TimeStamp:       timeStamp.Unix(),
 			Leverage:        leverage,
 			OrderType:       orderType,
 			OrderPrice:      orderPrice,
