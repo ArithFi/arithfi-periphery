@@ -46,7 +46,7 @@ func main() {
 					{"openPrice", action.OrderPrice},
 				})
 				if err != nil {
-					return
+					break
 				}
 				log.Println("MARKET_ORDER_FEE:", action.PositionIndex)
 				break
@@ -57,7 +57,7 @@ func main() {
 					bson.M{"$set": bson.M{"closeFees": action.Fees, "positionStatus": "closed"}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "LIMIT_CANCEL":
@@ -67,7 +67,7 @@ func main() {
 					bson.M{"$set": bson.M{"positionStatus": "cancelled"}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "LIMIT_EDIT":
@@ -77,7 +77,7 @@ func main() {
 					bson.M{"$set": bson.M{"entryPrice": action.OrderPrice}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "LIMIT_ORDER_FEE":
@@ -91,7 +91,7 @@ func main() {
 					}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "LIMIT_REQUEST":
@@ -111,7 +111,7 @@ func main() {
 					{"entryPrice", action.OrderPrice},
 				})
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "MARKET_LIQUIDATION":
@@ -121,7 +121,7 @@ func main() {
 					bson.M{"$set": bson.M{"positionSize": 0, "positionStatus": "closed", "closeFees": 0}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "MARKET_ORDER_ADD":
@@ -131,7 +131,7 @@ func main() {
 					bson.M{"$set": bson.M{"margin": action.Margin}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "SL_ORDER_FEE":
@@ -141,7 +141,7 @@ func main() {
 					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "TP_ORDER_FEE":
@@ -151,7 +151,7 @@ func main() {
 					bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			case "TPSL_EDIT":
@@ -161,7 +161,7 @@ func main() {
 					bson.M{"$set": bson.M{"stopLossPrice": action.StopLossPrice, "takeProfitPrice": action.TakeProfitPrice}},
 				)
 				if err != nil {
-					return
+					break
 				}
 				break
 			}

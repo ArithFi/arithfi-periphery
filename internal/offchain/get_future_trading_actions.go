@@ -29,7 +29,7 @@ func GetFuturesTradings(fromId int64) ([]Action, error) {
 FROM f_future_trading 
 WHERE _id > ? 
 ORDER By _id
-LIMIT 10
+LIMIT 1000
 `, fromId)
 	if err != nil {
 		return []Action{}, err
