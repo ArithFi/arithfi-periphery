@@ -14,6 +14,7 @@ import (
 // This code can execute continuously in a loop, triggering every 10 seconds.
 // The purpose of the code is to retrieve transfer records of ATF tokens from the Logs data source on BscScan, all of
 // which are successful transactions. The logs will be continuously written into MongoDB, where there is a unique
+// constraint: a combination of transactionHash and logIndex forms a unique index.
 
 func main() {
 	var fromBlock = "0"
