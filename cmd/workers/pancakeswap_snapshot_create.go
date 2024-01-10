@@ -162,12 +162,27 @@ func main() {
 				if totalSellVolumeMap[date] == nil {
 					totalSellVolumeMap[date] = new(big.Float)
 				}
-				_abstract["transactions.buy.total"] = totalBuyTxsMap[date]
-				_abstract["transactions.sell.total"] = totalSellTxsMap[date]
-				_abstract["transactions.total"] = totalBuyTxsMap[date] + totalSellTxsMap[date]
-				_abstract["volume.buy.total"], _ = totalBuyVolumeMap[date].Float64()
-				_abstract["volume.sell.total"], _ = totalSellVolumeMap[date].Float64()
-				_abstract["volume.total"], _ = new(big.Float).Add(totalSellVolumeMap[date], totalBuyVolumeMap[date]).Float64()
+				volumeTotal, _ := new(big.Float).Add(totalSellVolumeMap[date], totalBuyVolumeMap[date]).Float64()
+				volumeBuyTotal, _ := totalBuyVolumeMap[date].Float64()
+				volumeSellTotal, _ := totalSellVolumeMap[date].Float64()
+				_abstract["volume"] = bson.M{
+					"total": volumeTotal,
+					"buy": bson.M{
+						"total": volumeBuyTotal,
+					},
+					"sell": bson.M{
+						"total": volumeSellTotal,
+					},
+				}
+				_abstract["transactions"] = bson.M{
+					"total": totalBuyTxsMap[date] + totalSellTxsMap[date],
+					"buy": bson.M{
+						"total": totalBuyTxsMap[date],
+					},
+					"sell": bson.M{
+						"total": totalSellTxsMap[date],
+					},
+				}
 				_, err := pancakeSwapSnapshotCollection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "traders": tradersArray}}, options.Update().SetUpsert(true))
 				if err != nil {
 					log.Println(err)
