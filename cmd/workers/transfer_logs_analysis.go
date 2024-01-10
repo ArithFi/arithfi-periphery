@@ -45,7 +45,7 @@ func main() {
 			}
 			topics, ok := _log["topics"].(bson.A)
 			if !ok {
-				log.Println("无法获取topics字段或者topics字段不是切片类型")
+				log.Println("transfer_logs_analysis: Error loading topics")
 				return
 			}
 			from, _ := topics[1].(string)
@@ -54,7 +54,7 @@ func main() {
 			timestamp.SetString(strings.TrimPrefix(_log["timestamp"].(string), "0x"), 16)
 			loc, err := time.LoadLocation("Asia/Shanghai")
 			if err != nil {
-				log.Println("Error loading location:", err)
+				log.Println("transfer_logs_analysis: Error loading location", err)
 				return
 			}
 			date := time.Unix(timestamp.Int64(), 0).In(loc).Format("2006-01-02")
@@ -75,10 +75,10 @@ func main() {
 				return
 			}
 
-			log.Println("Update transfer_logs success, block:", _log["blockNumber"], ", date:", date)
+			log.Println("transfer_logs_analysis: success, block", _log["blockNumber"], ", date", date)
 			fromBlock = _log["blockNumber"].(string)
 		}
-		log.Println("Sleep 10 seconds")
+		log.Println("transfer_logs_analysis: Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }

@@ -17,10 +17,10 @@ func main() {
 	futuresPositionsCollection := mongo.MONGODB.Database("off-chain").Collection("futures-positions")
 
 	for {
-		log.Println("Scan Futures Tradings from id", lastId)
+		log.Println("futures_positions_retrieve: Scan Futures Tradings from id", lastId)
 		actions, err := offchain.GetFuturesTradings(lastId)
 		if err != nil {
-			log.Println("Scan Futures Tradings err", err)
+			log.Println("futures_positions_retrieve: Scan Futures Tradings err", err)
 			continue
 		}
 		if len(actions) > 0 {
@@ -44,10 +44,10 @@ func main() {
 						{"openPrice", action.OrderPrice},
 					})
 					if err != nil {
-						log.Println("MARKET_ORDER_FEE:", err)
+						log.Println("futures_positions_retrieve: MARKET_ORDER_FEE", err)
 						break
 					}
-					log.Println("MARKET_ORDER_FEE:", action.Id)
+					log.Println("futures_positions_retrieve: success", action.OrderType, action.Id)
 					break
 				case "MARKET_CLOSE_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -56,10 +56,10 @@ func main() {
 						bson.M{"$set": bson.M{"closeFees": action.Fees, "positionStatus": "closed", "sellValue": action.SellValue, "closePrice": action.OrderPrice}},
 					)
 					if err != nil {
-						log.Println("MARKET_CLOSE_FEE:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("MARKET_CLOSE_FEE:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "LIMIT_CANCEL":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -68,10 +68,10 @@ func main() {
 						bson.M{"$set": bson.M{"positionStatus": "cancelled"}},
 					)
 					if err != nil {
-						log.Println("LIMIT_CANCEL:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("LIMIT_CANCEL:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "LIMIT_EDIT":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -80,10 +80,10 @@ func main() {
 						bson.M{"$set": bson.M{"entryPrice": action.OrderPrice}},
 					)
 					if err != nil {
-						log.Println("LIMIT_EDIT:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("LIMIT_EDIT:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "LIMIT_ORDER_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -96,10 +96,10 @@ func main() {
 						}},
 					)
 					if err != nil {
-						log.Println("LIMIT_ORDER_FEE:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("LIMIT_ORDER_FEE:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "LIMIT_REQUEST":
 					_, err := futuresPositionsCollection.InsertOne(ctx, bson.D{
@@ -118,10 +118,10 @@ func main() {
 						{"entryPrice", action.OrderPrice},
 					})
 					if err != nil {
-						log.Println("LIMIT_REQUEST:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("LIMIT_REQUEST:", action.PositionIndex)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "MARKET_LIQUIDATION":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -130,10 +130,10 @@ func main() {
 						bson.M{"$set": bson.M{"positionSize": 0, "positionStatus": "closed", "closeFees": 0, "sellValue": 0, "closePrice": action.OrderPrice}},
 					)
 					if err != nil {
-						log.Println("MARKET_LIQUIDATION:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("MARKET_LIQUIDATION:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "MARKET_ORDER_ADD":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -145,10 +145,10 @@ func main() {
 						}},
 					)
 					if err != nil {
-						log.Println("MARKET_ORDER_ADD:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("MARKET_ORDER_ADD:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "SL_ORDER_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -157,10 +157,10 @@ func main() {
 						bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees, "sellValue": action.SellValue, "closePrice": action.OrderPrice}},
 					)
 					if err != nil {
-						log.Println("SL_ORDER_FEE:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("SL_ORDER_FEE:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "TP_ORDER_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -169,10 +169,10 @@ func main() {
 						bson.M{"$set": bson.M{"positionStatus": "closed", "closeFees": action.Fees, "sellValue": action.SellValue, "closePrice": action.OrderPrice}},
 					)
 					if err != nil {
-						log.Println("TP_ORDER_FEE:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("TP_ORDER_FEE:", action.Id)
+					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
 					break
 				case "TPSL_EDIT":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -181,10 +181,10 @@ func main() {
 						bson.M{"$set": bson.M{"stopLossPrice": action.StopLossPrice, "takeProfitPrice": action.TakeProfitPrice}},
 					)
 					if err != nil {
-						log.Println("TPSL_EDIT:", err)
+						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("TPSL_EDIT:", action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				default:
 					fmt.Println(action.OrderType, action.Id)
@@ -193,9 +193,9 @@ func main() {
 			}
 			lastId = actions[len(actions)-1].Id
 		} else {
-			log.Println("Scan Futures Tradings empty")
+			log.Println("futures_position_retrieve: Scan Futures Tradings empty")
 		}
-		log.Println("Sleep 10 seconds")
+		log.Println("futures_position_retrieve: Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }

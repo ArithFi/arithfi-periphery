@@ -32,7 +32,7 @@ func main() {
 	tokenHolderSnapshotCollection := mongo.MONGODB.Database("chain-bsc").Collection("tokenholder-snapshot")
 
 	for {
-		log.Println("Start fetching data:", snapshotCursorDate)
+		log.Println("tokenholder_snapshot_create: Start fetching data", snapshotCursorDate)
 		cursor, err := transferLogsCollection.Find(ctx, bson.M{"aggregate.date": bson.M{"$gte": snapshotCursorDate}}, opts)
 		if err != nil {
 			log.Println(err)
@@ -53,26 +53,26 @@ func main() {
 					lockMap[idHex] = true
 				}
 			} else {
-				log.Println("Unable to retrieve the _id field or the _id field is not of ObjectID type.")
+				log.Println("tokenholder_snapshot_create: Unable to retrieve the _id field or the _id field is not of ObjectID type.")
 				continue
 			}
 			aggregate, ok := _log["aggregate"].(bson.M)
 			if !ok {
-				log.Println("Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
+				log.Println("tokenholder_snapshot_create: Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
 				return
 			}
 			date := aggregate["date"].(string)
 			totalTransfers++
 			abstract, ok := _log["abstract"].(bson.M)
 			if !ok {
-				log.Println("Unable to retrieve the abstract field or the abstract field is not of slice type.")
+				log.Println("tokenholder_snapshot_create: Unable to retrieve the abstract field or the abstract field is not of slice type.")
 				return
 			}
 			from := abstract["from"].(string)
 			to := abstract["to"].(string)
 			amount, ok := new(big.Float).SetString(abstract["amount"].(string))
 			if !ok {
-				log.Println("Unable to retrieve the amount field or the amount field is not of string type.")
+				log.Println("tokenholder_snapshot_create: Unable to retrieve the amount field or the amount field is not of string type.")
 				return
 			}
 			if balancesMap[from] == nil {
@@ -102,7 +102,7 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
-			log.Println("Snapshot updated:", date, "holders:", len(snapshotArray), "totalTransfers:", totalTransfers)
+			log.Println("tokenholder_snapshot_create: success", date, "holders", len(snapshotArray), "totalTransfers", totalTransfers)
 			snapshotCursorDate = date
 		}
 		log.Println("Sleep 10 seconds")

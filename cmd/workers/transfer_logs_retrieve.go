@@ -24,10 +24,10 @@ func main() {
 	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
 
 	for {
-		log.Printf("fromBlock: %s, toBlock: %s\n", fromBlock, toBlock)
+		log.Printf("transfer_logs_retrieve: fromBlock %s, toBlock%s\n", fromBlock, toBlock)
 		logs, err := bscscan.GetLogs(fromBlock, toBlock)
 		if err != nil {
-			log.Fatalf("Error getting logs: %v", err)
+			log.Fatalf("transfer_logs_retrieve: Error getting logs %v", err)
 		}
 		var documents []interface{}
 		for _, _log := range logs {
@@ -38,7 +38,7 @@ func main() {
 		if len(documents) > 0 {
 			fromBlockBigInt, ok := new(big.Int).SetString(strings.TrimPrefix(fromBlock, "0x"), 16)
 			if !ok {
-				log.Fatalf("Failed to parse fromBlock: %s", fromBlock)
+				log.Fatalf("transfer_logs_retrieve: Failed to parse fromBlock %s", fromBlock)
 			}
 			fromBlockBigInt = fromBlockBigInt.Add(fromBlockBigInt, big.NewInt(1))
 			fromBlock = fromBlockBigInt.String()
@@ -48,12 +48,12 @@ func main() {
 			if err != nil {
 				log.Println("Error inserting some documents")
 			}
-			log.Println("Logs inserted successfully")
+			log.Println("transfer_logs_retrieve success")
 		} else {
-			log.Println("No logs to insert")
+			log.Println("transfer_logs_retrieve: No logs to insert")
 		}
 
-		log.Println("Sleep 10 seconds")
+		log.Println("transfer_logs_retrieve: Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }

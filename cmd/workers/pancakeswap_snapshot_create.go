@@ -37,7 +37,7 @@ func main() {
 	pancakeSwapSnapshotCollection := mongo.MONGODB.Database("chain-bsc").Collection("pancakeswap-snapshot")
 
 	for {
-		log.Println("Start fetching data:", snapshotCursorDate)
+		log.Println("pancakeswap_snapshot_create: Start fetching data", snapshotCursorDate)
 		cursor, err := transferLogsCollection.Find(ctx, bson.M{"aggregate.date": bson.M{"$gte": snapshotCursorDate}}, opts)
 		if err != nil {
 			log.Println(err)
@@ -58,25 +58,25 @@ func main() {
 					lockMap[idHex] = true
 				}
 			} else {
-				log.Println("Unable to retrieve the _id field or the _id field is not of ObjectID type.")
+				log.Println("pancakeswap_snapshot_create: Unable to retrieve the _id field or the _id field is not of ObjectID type.")
 				continue
 			}
 			aggregate, ok := _log["aggregate"].(bson.M)
 			if !ok {
-				log.Println("Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
+				log.Println("pancakeswap_snapshot_create: Unable to retrieve the aggregate field or the aggregate field is not of slice type.")
 				return
 			}
 			date := aggregate["date"].(string)
 			abstract, ok := _log["abstract"].(bson.M)
 			if !ok {
-				log.Println("Unable to retrieve the abstract field or the abstract field is not of slice type.")
+				log.Println("pancakeswap_snapshot_create: Unable to retrieve the abstract field or the abstract field is not of slice type.")
 				return
 			}
 			from := abstract["from"].(string)
 			to := abstract["to"].(string)
 			amount, ok := new(big.Float).SetString(abstract["amount"].(string))
 			if !ok {
-				log.Println("Unable to retrieve the amount field or the amount field is not of string type.")
+				log.Println("pancakeswap_snapshot_create: Unable to retrieve the amount field or the amount field is not of string type.")
 				return
 			}
 			if from == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" { // This is the address of the PancakeSwap contract, Buy
@@ -172,13 +172,13 @@ func main() {
 				if err != nil {
 					log.Println(err)
 				}
-				log.Println("Snapshot updated:", date, "from:", from, "to:", to)
+				log.Println("pancakeswap_snapshot_create: success", date, "from", from, "to", to)
 			} else {
-				log.Println("None pancakeswap transactions")
+				log.Println("pancakeswap_snapshot_create: None pancakeswap transactions")
 			}
 			snapshotCursorDate = date
 		}
-		log.Println("Sleep 10 seconds")
+		log.Println("pancakeswap_snapshot_create: Sleep 10 seconds")
 		time.Sleep(time.Second * 10)
 	}
 }

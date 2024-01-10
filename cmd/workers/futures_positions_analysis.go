@@ -50,7 +50,7 @@ func main() {
 				return
 			}
 
-			log.Println("Update transfer_logs success, positionIndex:", position["positionIndex"], ", date:", date)
+			log.Println("futures_positions_analysis: success, positionIndex:", position["positionIndex"], ", date:", date)
 			fromPositionIndex = position["positionIndex"].(int64)
 		}
 		log.Println("Sleep 10 seconds")
