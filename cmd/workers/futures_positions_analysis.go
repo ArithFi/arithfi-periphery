@@ -6,8 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"math/big"
-	"strings"
 	"time"
 )
 
@@ -22,10 +20,10 @@ func main() {
 	opts.SetSort(bson.D{{"positionIndex", 1}}) // 按照blockNumber升序排序
 	opts.SetLimit(1000)
 
-	collection := mongo.MONGODB.Database("chain-bsc").Collection("futures-positions")
+	collection := mongo.MONGODB.Database("off-chain").Collection("futures-positions")
 
 	for {
-		cursor, err := collection.Find(ctx, bson.M{"blockNumber": bson.M{"$gt": fromPositionIndex}}, opts)
+		cursor, err := collection.Find(ctx, bson.M{"positionIndex": bson.M{"$gt": fromPositionIndex}}, opts)
 		if err != nil {
 			return
 		}
@@ -36,14 +34,13 @@ func main() {
 			if err := cursor.Decode(&position); err != nil {
 				continue
 			}
-			timestamp := new(big.Int)
-			timestamp.SetString(strings.TrimPrefix(position["timestamp"].(string), "0x"), 16)
+			timestamp := position["timestamp"].(int64)
 			loc, err := time.LoadLocation("Asia/Shanghai")
 			if err != nil {
 				log.Println("Error loading location:", err)
 				return
 			}
-			date := time.Unix(timestamp.Int64(), 0).In(loc).Format("2006-01-02")
+			date := time.Unix(timestamp, 0).In(loc).Format("2006-01-02")
 			aggregate := bson.M{
 				"date":     date,
 				"location": "Asia/Shanghai",
