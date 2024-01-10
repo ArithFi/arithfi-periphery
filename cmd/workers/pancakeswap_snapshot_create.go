@@ -193,6 +193,10 @@ func main() {
 			}
 			if date > snapshotCursorDate {
 				delete(snapshotMap, snapshotCursorDate)
+				delete(totalBuyVolumeMap, snapshotCursorDate)
+				delete(totalSellVolumeMap, snapshotCursorDate)
+				delete(totalBuyTxsMap, snapshotCursorDate)
+				delete(totalSellTxsMap, snapshotCursorDate)
 				log.Println("pancakeswap_snapshot_create: delete snapshotMap of", snapshotCursorDate)
 			}
 			snapshotCursorDate = date
