@@ -47,7 +47,7 @@ func main() {
 						log.Println("futures_positions_retrieve: MARKET_ORDER_FEE", err)
 						break
 					}
-					log.Println("futures_positions_retrieve: success", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "MARKET_CLOSE_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -59,7 +59,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "LIMIT_CANCEL":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -71,7 +71,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "LIMIT_EDIT":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -83,7 +83,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "LIMIT_ORDER_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -99,7 +99,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "LIMIT_REQUEST":
 					_, err := futuresPositionsCollection.InsertOne(ctx, bson.D{
@@ -121,7 +121,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "MARKET_LIQUIDATION":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -133,7 +133,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "MARKET_ORDER_ADD":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -148,7 +148,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "SL_ORDER_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -160,7 +160,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "TP_ORDER_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -172,7 +172,7 @@ func main() {
 						log.Println("futures_positions_retrieve:", err)
 						break
 					}
-					log.Println("futures_position_retrieve success:", action.OrderType, action.Id)
+					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
 					break
 				case "TPSL_EDIT":
 					_, err := futuresPositionsCollection.UpdateOne(
