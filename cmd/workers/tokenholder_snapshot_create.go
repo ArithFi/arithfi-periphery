@@ -97,7 +97,9 @@ func main() {
 			var _abstract bson.M
 			_abstract = make(bson.M)
 			_abstract["holders"] = len(snapshotArray)
-			_abstract["transfers.total"] = totalTransfers
+			_abstract["transfers"] = bson.M{
+				"total": totalTransfers,
+			}
 			_, err := tokenHolderSnapshotCollection.UpdateOne(ctx, bson.M{"date": date}, bson.M{"$set": bson.M{"abstract": _abstract, "holders": snapshotArray}}, options.Update().SetUpsert(true))
 			if err != nil {
 				log.Println(err)
