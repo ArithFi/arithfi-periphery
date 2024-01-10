@@ -191,6 +191,10 @@ func main() {
 			} else {
 				log.Println("pancakeswap_snapshot_create: None pancakeswap transactions")
 			}
+			if date > snapshotCursorDate {
+				delete(snapshotMap, snapshotCursorDate)
+				log.Println("pancakeswap_snapshot_create: delete snapshotMap of", snapshotCursorDate)
+			}
 			snapshotCursorDate = date
 		}
 		log.Println("pancakeswap_snapshot_create: Sleep 10 seconds")

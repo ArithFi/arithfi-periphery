@@ -105,6 +105,11 @@ func main() {
 				log.Println(err)
 			}
 			log.Println("tokenholder_snapshot_create: success", date, "holders", len(snapshotArray), "totalTransfers", totalTransfers)
+
+			if date > snapshotCursorDate {
+				delete(snapshotMap, snapshotCursorDate)
+				log.Println("tokenholder_snapshot_create: delete snapshotMap of", snapshotCursorDate)
+			}
 			snapshotCursorDate = date
 		}
 		log.Println("Sleep 10 seconds")
