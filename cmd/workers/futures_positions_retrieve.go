@@ -139,7 +139,10 @@ func main() {
 					_, err := futuresPositionsCollection.UpdateOne(
 						ctx,
 						bson.M{"positionIndex": action.PositionIndex},
-						bson.M{"$set": bson.M{"margin": action.Margin}},
+						bson.M{"$set": bson.M{
+							"margin":      action.Margin,
+							"addedMargin": bson.D{{"$subtract", bson.A{action.Margin, "$initialMargin"}}},
+						}},
 					)
 					if err != nil {
 						log.Println("MARKET_ORDER_ADD:", err)
