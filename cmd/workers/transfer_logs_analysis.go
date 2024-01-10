@@ -70,10 +70,7 @@ func main() {
 				"date":     date,
 				"location": "Asia/Shanghai",
 			}
-			_log["abstract"] = abstract
-			_log["aggregate"] = aggregate
-
-			_, err = collection.UpdateOne(ctx, bson.M{"_id": _log["_id"]}, bson.M{"$set": _log})
+			_, err = collection.UpdateOne(ctx, bson.M{"_id": _log["_id"]}, bson.M{"$set": bson.M{"abstract": abstract, "aggregate": aggregate}})
 			if err != nil {
 				return
 			}

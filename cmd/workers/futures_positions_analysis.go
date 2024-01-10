@@ -48,9 +48,7 @@ func main() {
 				"date":     date,
 				"location": "Asia/Shanghai",
 			}
-			position["aggregate"] = aggregate
-
-			_, err = collection.UpdateOne(ctx, bson.M{"_id": position["_id"]}, bson.M{"$set": position})
+			_, err = collection.UpdateOne(ctx, bson.M{"_id": position["_id"]}, bson.M{"$set": bson.M{"aggregate": aggregate}})
 			if err != nil {
 				return
 			}
