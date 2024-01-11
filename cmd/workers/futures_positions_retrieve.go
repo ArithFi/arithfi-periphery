@@ -7,6 +7,7 @@ import (
 	"github.com/arithfi/arithfi-periphery/internal/offchain"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -23,6 +24,11 @@ func main() {
 			log.Println("futures_positions_retrieve: Scan Futures Tradings err", err)
 			continue
 		}
+		userBlacklist, err := offchain.GetUserBlacklist()
+		if err != nil {
+			panic(err)
+		}
+
 		if len(actions) > 0 {
 			for _, action := range actions {
 				switch action.OrderType {
@@ -48,6 +54,25 @@ func main() {
 						break
 					}
 					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
+					for _, user := range userBlacklist {
+						if strings.ToLower(user.WalletAddress) == strings.ToLower(action.WalletAddress) {
+							var taint string
+							if user.Notes == "复制交易管理" {
+								taint = "DAO"
+							} else if user.Notes == "虚拟交易账户" {
+								taint = "FAKE"
+							} else {
+								taint = "TEAM"
+							}
+							_, err = futuresPositionsCollection.UpdateOne(
+								ctx,
+								bson.M{"positionIndex": action.PositionIndex},
+								bson.M{"$addToSet": bson.M{"taint": taint}},
+							)
+							log.Println("futures_position_retrieve: walletAddress is in userBlacklist")
+							break
+						}
+					}
 					break
 				case "MARKET_CLOSE_FEE":
 					_, err := futuresPositionsCollection.UpdateOne(
@@ -100,6 +125,25 @@ func main() {
 						break
 					}
 					log.Println("futures_position_retrieve: success", action.OrderType, action.Id)
+					for _, user := range userBlacklist {
+						if strings.ToLower(user.WalletAddress) == strings.ToLower(action.WalletAddress) {
+							var taint string
+							if user.Notes == "复制交易管理" {
+								taint = "DAO"
+							} else if user.Notes == "虚拟交易账户" {
+								taint = "FAKE"
+							} else {
+								taint = "TEAM"
+							}
+							_, err = futuresPositionsCollection.UpdateOne(
+								ctx,
+								bson.M{"positionIndex": action.PositionIndex},
+								bson.M{"$addToSet": bson.M{"taint": taint}},
+							)
+							log.Println("futures_position_retrieve: walletAddress is in userBlacklist")
+							break
+						}
+					}
 					break
 				case "LIMIT_REQUEST":
 					_, err := futuresPositionsCollection.InsertOne(ctx, bson.D{
