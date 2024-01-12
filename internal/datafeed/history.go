@@ -45,14 +45,13 @@ func History(c echo.Context) error {
 		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "to parse error"})
 	}
 	symbol = strings.ReplaceAll(symbol, "/", "")
-	log.Println("symbol", symbol)
 	klines := binance.GetKlines(symbol, resolution, from*1000, to*1000)
 
 	result := make([]model.Bar, len(*klines))
 	for i, data := range *klines {
 		result[i] = model.Bar{
 			S: "ok",
-			T: data.OpenTime / 1000,
+			T: data.OpenTime,
 			C: data.Close,
 			O: data.Open,
 			H: data.High,
