@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/arithfi/arithfi-periphery/model"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -13,14 +14,14 @@ const (
 	klinesURL = "/klines"
 )
 
-func GetKlines(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
-	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10) + "&limit=500")
+func GetKlines(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
+	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10) + "&limit=" + strconv.FormatInt(countback, 10))
 	var arr [][]interface{}
 	err := json.Unmarshal(body, &arr)
 	if err != nil {
+		log.Println(err)
 		return nil
 	}
-
 	exchangeInfo := make([]model.Kline, len(arr))
 	for i, data := range arr {
 		exchangeInfo[i] = model.Kline{
@@ -42,8 +43,16 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 }
 
 func requestAPI(endpoint string) []byte {
-	resp, _ := http.Get(BaseURL + endpoint)
-	body, _ := io.ReadAll(resp.Body)
+	resp, err := http.Get(BaseURL + endpoint)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
 	defer resp.Body.Close()
 	return body
 }

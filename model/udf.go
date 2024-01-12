@@ -12,6 +12,7 @@ type Config struct {
 	SupportsGroupRequest   bool     `json:"supports_group_request"`
 	SupportsMarks          bool     `json:"supports_marks"`
 	SupportsTimescaleMarks bool     `json:"supports_timescale_marks"`
+	SupportsTime           bool     `json:"supports_time"`
 }
 
 type Symbol struct {

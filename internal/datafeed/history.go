@@ -36,17 +36,21 @@ func History(c echo.Context) error {
 	resolution := ResolutionMap[c.QueryParam("resolution")]
 	from, err := strconv.ParseInt(c.QueryParam("from"), 0, 64)
 	if err != nil {
-		log.Println("limit : " + c.QueryParam("from"))
+		log.Println("from : " + c.QueryParam("from"))
 		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "from parse error"})
 	}
 	to, err := strconv.ParseInt(c.QueryParam("to"), 0, 64)
 	if err != nil {
-		log.Println("limit : " + c.QueryParam("to"))
+		log.Println("to : " + c.QueryParam("to"))
 		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "to parse error"})
 	}
+	countback, err := strconv.ParseInt(c.QueryParam("countback"), 0, 64)
+	if err != nil {
+		log.Println("countback : " + c.QueryParam("countback"))
+		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "countback parse error"})
+	}
 	symbol = strings.ReplaceAll(symbol, "/", "")
-	klines := binance.GetKlines(symbol, resolution, from*1000, to*1000)
-
+	klines := binance.GetKlines(symbol, resolution, from*1000, to*1000, countback)
 	result := model.Bar{}
 	result.S = "ok"
 	for _, data := range *klines {
