@@ -2,15 +2,15 @@ package model
 
 type Kline struct {
 	OpenTime         int64
-	Open             float64
-	High             float64
-	Low              float64
-	Close            float64
-	Volume           float64
+	Open             string
+	High             string
+	Low              string
+	Close            string
+	Volume           string
 	CloseTime        int64
-	QuoteVolume      float64
+	QuoteVolume      string
 	NumberOfTrades   int64
-	TakerBaseVolume  float64
-	TakerQuoteVolume float64
-	Ignore           float64
+	TakerBaseVolume  string
+	TakerQuoteVolume string
+	Ignore           string
 }

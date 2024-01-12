@@ -27,20 +27,19 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 	for i, data := range arr {
 		exchangeInfo[i] = model.Kline{
 			OpenTime:         int64(data[0].(float64) / 1000),
-			Open:             data[1].(float64),
-			High:             data[2].(float64),
-			Low:              data[3].(float64),
-			Close:            data[4].(float64),
-			Volume:           data[5].(float64),
+			Open:             data[1].(string),
+			High:             data[2].(string),
+			Low:              data[3].(string),
+			Close:            data[4].(string),
+			Volume:           data[5].(string),
 			CloseTime:        int64(data[6].(float64) / 1000),
-			QuoteVolume:      data[7].(float64),
-			NumberOfTrades:   data[8].(int64),
-			TakerBaseVolume:  data[9].(float64),
-			TakerQuoteVolume: data[10].(float64),
-			Ignore:           data[11].(float64),
+			QuoteVolume:      data[7].(string),
+			NumberOfTrades:   int64(data[8].(float64)),
+			TakerBaseVolume:  data[9].(string),
+			TakerQuoteVolume: data[10].(string),
+			Ignore:           data[11].(string),
 		}
 	}
-
 	return &exchangeInfo
 }
 
