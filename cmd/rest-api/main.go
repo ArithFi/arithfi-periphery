@@ -34,6 +34,7 @@ func main() {
 	})
 	e.GET("/config", datafeed.GetConfig)
 	e.GET("/symbols", datafeed.Symbols)
+	e.GET("/symbol_info", datafeed.SymbolInfo)
 	e.GET("/search", datafeed.Search)
 	e.GET("/history", datafeed.History)
 

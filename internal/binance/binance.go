@@ -4,25 +4,14 @@ import (
 	"encoding/json"
 	"github.com/arithfi/arithfi-periphery/model"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 const (
-	BaseURL         = "https://api.binance.com/api/v3"
-	exchangeInfoURL = "/exchangeInfo"
-	klinesURL       = "/klines"
+	BaseURL   = "https://api.binance.com/api/v3"
+	klinesURL = "/klines"
 )
-
-func GetExchangeInfo() *model.ExchangeInfo {
-	body := requestAPI(exchangeInfoURL)
-	exchangeInfo := new(model.ExchangeInfo)
-	if err := json.Unmarshal(body, exchangeInfo); err != nil {
-		log.Println(err.Error())
-	}
-	return exchangeInfo
-}
 
 func GetKlines(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
 	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10))
