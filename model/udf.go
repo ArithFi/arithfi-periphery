@@ -39,14 +39,14 @@ type Symbol struct {
 }
 
 type Bar struct {
-	S      string `json:"s"`
-	Errmsg string `json:"errnsg ,omitempty"`
-	T      int64  `json:"t"`
-	C      string `json:"c"`
-	O      string `json:"o"`
-	H      string `json:"h"`
-	L      string `json:"l"`
-	V      string `json:"v"`
+	S      string    `json:"s"`
+	Errmsg string    `json:"errnsg ,omitempty"`
+	T      []int64   `json:"t"`
+	C      []float64 `json:"c"`
+	O      []float64 `json:"o"`
+	H      []float64 `json:"h"`
+	L      []float64 `json:"l"`
+	V      []float64 `json:"v"`
 }
 
 type UDFError struct {
