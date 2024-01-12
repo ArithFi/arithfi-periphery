@@ -7,14 +7,11 @@ type Info struct {
 }
 
 type Config struct {
-	Exchanges              []Info   `json:"exchanges"`
-	SymbolsTypes           []Info   `json:"symbols_types"`
 	SupportedResolutions   []string `json:"supported_resolutions"`
 	SupportsSearch         bool     `json:"supports_search"`
 	SupportsGroupRequest   bool     `json:"supports_group_request"`
 	SupportsMarks          bool     `json:"supports_marks"`
 	SupportsTimescaleMarks bool     `json:"supports_timescale_marks"`
-	SupportsTime           bool     `json:"supports_time"`
 }
 
 type Symbol struct {
