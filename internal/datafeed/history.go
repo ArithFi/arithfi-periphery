@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 var ResolutionMap = map[string]string{
@@ -43,7 +44,8 @@ func History(c echo.Context) error {
 		log.Println("limit : " + c.QueryParam("to"))
 		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "to parse error"})
 	}
-
+	symbol = strings.ReplaceAll(symbol, "/", "")
+	log.Println("symbol", symbol)
 	klines := binance.GetKlines(symbol, resolution, from*1000, to*1000)
 
 	result := make([]model.Bar, len(*klines))

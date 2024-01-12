@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/arithfi/arithfi-periphery/model"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -15,7 +16,7 @@ const (
 
 func GetKlines(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
 	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10))
-	//log.Println(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10))
+	log.Println(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10))
 	var arr [][]interface{}
 	err := json.Unmarshal(body, &arr)
 	if err != nil {
