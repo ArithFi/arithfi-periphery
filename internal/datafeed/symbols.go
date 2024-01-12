@@ -27,7 +27,7 @@ func Symbols(c echo.Context) error {
 		Minmov:               1,
 		Minmovement2:         0,
 		Minmov2:              0,
-		Pricescale:           6,
+		Pricescale:           100,
 		SupportedResolutions: []string{"1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "1D", "3D", "1W", "1M"},
 		HasIntraday:          true,
 		HasDaily:             true,
