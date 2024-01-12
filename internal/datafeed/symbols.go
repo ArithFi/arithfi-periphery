@@ -4,6 +4,7 @@ import (
 	"github.com/arithfi/arithfi-periphery/model"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strings"
 )
 
 func Symbols(c echo.Context) error {
@@ -11,16 +12,19 @@ func Symbols(c echo.Context) error {
 	if symbol == "" {
 		return c.JSON(http.StatusBadRequest, model.UDFError{S: "error", Errmsg: "symbol: 404 not found"})
 	}
+	pair1 := strings.Split(symbol, "/")[0]
+	pair2 := strings.Split(symbol, "/")[1]
+
 	a := &model.Symbol{
-		Symbol:               symbol,
-		Ticker:               symbol,
-		Name:                 symbol,
+		Symbol:               pair1 + pair2,
+		Ticker:               pair1 + pair2,
+		Name:                 pair1 + pair2,
 		FullName:             symbol,
 		Description:          symbol,
 		Exchange:             "BINANCE",
 		ListedExchange:       "BINANCE",
 		Type:                 "crypto",
-		CurrencyCode:         symbol,
+		CurrencyCode:         pair2,
 		Session:              "24x7",
 		Timezone:             "UTC",
 		Minmovent:            1,
