@@ -27,7 +27,7 @@ type Action struct {
 
 // GetFuturesTradings 扫描这个表
 func GetFuturesTradings(fromId int64) ([]Action, error) {
-	query, err := mysql.MYSQL.Query(`SELECT _id, timestamp, product, positionIndex, leverage, orderType, orderPrice, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, fees, stopLossPrice, takeProfitPrice
+	query, err := mysql.ArithFiDB.Query(`SELECT _id, timestamp, product, positionIndex, leverage, orderType, orderPrice, mode, direction, margin, volume, sellValue, walletAddress, kolAddress, fees, stopLossPrice, takeProfitPrice
 FROM f_future_trading 
 WHERE _id > ? 
 ORDER By _id

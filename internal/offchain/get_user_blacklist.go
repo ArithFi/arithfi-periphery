@@ -13,7 +13,7 @@ type BlacklistUser struct {
 
 // GetUserBlacklist 获取用户黑名单
 func GetUserBlacklist() ([]BlacklistUser, error) {
-	query, err := mysql.MYSQL.Query(`SELECT walletAddress, type, notes, tgName
+	query, err := mysql.ArithFiDB.Query(`SELECT walletAddress, type, notes, tgName
 FROM f_user_blacklist
 `)
 	if err != nil {

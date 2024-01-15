@@ -9,15 +9,15 @@ import (
 )
 
 var (
-	MYSQL *sql.DB
+	ArithFiDB *sql.DB
 )
 
 func init() {
-	MYSQL = connectMysql()
+	ArithFiDB = connectMysql(configs.EnvMysqlURI())
 }
 
-func connectMysql() *sql.DB {
-	db, err := sql.Open("mysql", configs.EnvMysqlURI())
+func connectMysql(uri string) *sql.DB {
+	db, err := sql.Open("mysql", uri)
 	if err != nil {
 		log.Fatal("Failed to connect to Mysql", err)
 	}
