@@ -2,6 +2,8 @@ package binance
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"github.com/arithfi/arithfi-periphery/model"
 	"io"
 	"log"
@@ -39,7 +41,59 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64, c
 			Ignore:           data[11].(string),
 		}
 	}
+	go func() {
+		err := insertKlines(&exchangeInfo, interval, symbol)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}()
 	return &exchangeInfo
+}
+
+func insertKlines(exchangeInfo *[]model.Kline, resolution string, symbol string) error {
+	tx, err := mysql.ArithFiDB.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+	stmt, err := tx.Prepare(`
+		INSERT INTO kline_cache (timestamp, resolution, symbol, open, high, low, close, volume)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		ON DUPLICATE KEY UPDATE
+			open = VALUES(open),
+			high = VALUES(high),
+			low = VALUES(low),
+			close = VALUES(close),
+			volume = VALUES(volume)
+	`)
+
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, data := range *exchangeInfo {
+		_, err = stmt.Exec(
+			data.OpenTime,
+			resolution,
+			symbol,
+			data.Open,
+			data.High,
+			data.Low,
+			data.Close,
+			data.Volume,
+		)
+		if err != nil {
+			return err
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	fmt.Println("Insert success", symbol, resolution, len(*exchangeInfo))
+	return nil
 }
 
 func requestAPI(endpoint string) []byte {
