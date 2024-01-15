@@ -109,7 +109,7 @@ func getFromCache(symbol string, interval string, startTime int64, endTime int64
 		exchangeInfo = append(exchangeInfo, data)
 	}
 
-	if len(exchangeInfo) == 0 {
+	if len(exchangeInfo) < int(countback) {
 		return nil
 	}
 
