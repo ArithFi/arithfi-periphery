@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	BaseURL   = "https://api.binance.com/api/v3"
+	BaseURL   = "https://fapi.binance.com/fapi/v1"
 	klinesURL = "/klines"
 )
 

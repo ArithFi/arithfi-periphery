@@ -2,6 +2,7 @@ package datafeed
 
 import (
 	"github.com/arithfi/arithfi-periphery/internal/binance"
+	"github.com/arithfi/arithfi-periphery/internal/forex"
 	"github.com/arithfi/arithfi-periphery/model"
 	"github.com/labstack/echo/v4"
 	"log"
@@ -50,22 +51,51 @@ func History(c echo.Context) error {
 		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "countback parse error"})
 	}
 	symbol = strings.ReplaceAll(symbol, "/", "")
-	klines := binance.GetKlines(symbol, resolution, from*1000, to*1000, countback)
-	result := model.Bar{}
-	result.S = "ok"
-	for _, data := range *klines {
-		result.T = append(result.T, data.OpenTime)
-		openPrice, _ := strconv.ParseFloat(data.Open, 64)
-		result.O = append(result.O, openPrice)
-		highPrice, _ := strconv.ParseFloat(data.High, 64)
-		result.H = append(result.H, highPrice)
-		lowPrice, _ := strconv.ParseFloat(data.Low, 64)
-		result.L = append(result.L, lowPrice)
-		closePrice, _ := strconv.ParseFloat(data.Close, 64)
-		result.C = append(result.C, closePrice)
-		volume, _ := strconv.ParseFloat(data.Volume, 64)
-		result.V = append(result.V, volume)
-	}
 
-	return c.JSON(http.StatusOK, result)
+	if strings.Contains(symbol, "USDT") {
+		klines := binance.GetKlines(symbol, resolution, from*1000, to*1000, countback)
+
+		result := model.Bar{}
+		result.S = "ok"
+		if len(*klines) == 0 {
+			return c.JSON(http.StatusOK, result)
+		}
+		for _, data := range *klines {
+			result.T = append(result.T, data.OpenTime)
+			openPrice, _ := strconv.ParseFloat(data.Open, 64)
+			result.O = append(result.O, openPrice)
+			highPrice, _ := strconv.ParseFloat(data.High, 64)
+			result.H = append(result.H, highPrice)
+			lowPrice, _ := strconv.ParseFloat(data.Low, 64)
+			result.L = append(result.L, lowPrice)
+			closePrice, _ := strconv.ParseFloat(data.Close, 64)
+			result.C = append(result.C, closePrice)
+			volume, _ := strconv.ParseFloat(data.Volume, 64)
+			result.V = append(result.V, volume)
+		}
+
+		return c.JSON(http.StatusOK, result)
+	} else {
+		klines := forex.GetKlines(symbol, resolution, from*1000, to*1000, countback)
+
+		result := model.Bar{}
+		result.S = "ok"
+		if len(*klines) == 0 {
+			return c.JSON(http.StatusOK, result)
+		}
+		for _, data := range *klines {
+			result.T = append(result.T, data.OpenTime)
+			openPrice, _ := strconv.ParseFloat(data.Open, 64)
+			result.O = append(result.O, openPrice)
+			highPrice, _ := strconv.ParseFloat(data.High, 64)
+			result.H = append(result.H, highPrice)
+			lowPrice, _ := strconv.ParseFloat(data.Low, 64)
+			result.L = append(result.L, lowPrice)
+			closePrice, _ := strconv.ParseFloat(data.Close, 64)
+			result.C = append(result.C, closePrice)
+			volume, _ := strconv.ParseFloat(data.Volume, 64)
+			result.V = append(result.V, volume)
+		}
+		return c.JSON(http.StatusOK, result)
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/arithfi/arithfi-periphery/model"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strings"
 )
 
 var pricescaleMap = map[string]int64{
@@ -35,28 +36,55 @@ func Symbols(c echo.Context) error {
 		pricescale = 100
 	}
 
-	a := &model.Symbol{
-		Symbol:               symbol,
-		Ticker:               symbol,
-		Name:                 symbol,
-		FullName:             symbol,
-		Description:          symbol,
-		Exchange:             "BINANCE",
-		ListedExchange:       "BINANCE",
-		Type:                 "crypto",
-		CurrencyCode:         "USD",
-		Session:              "24x7",
-		Timezone:             "UTC",
-		Minmovent:            1,
-		Minmov:               1,
-		Minmovement2:         0,
-		Minmov2:              0,
-		Pricescale:           pricescale,
-		SupportedResolutions: []string{"1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "1D", "3D", "1W"},
-		HasIntraday:          true,
-		HasDaily:             true,
-		HasWeeklyAndMonthly:  true,
-		DataStatus:           "streaming",
+	if strings.Contains(symbol, "USDT") {
+		a := &model.Symbol{
+			Symbol:               symbol,
+			Ticker:               symbol,
+			Name:                 symbol,
+			FullName:             symbol,
+			Description:          symbol,
+			Exchange:             "BINANCE",
+			ListedExchange:       "BINANCE",
+			Type:                 "crypto",
+			CurrencyCode:         "USD",
+			Session:              "24x7",
+			Timezone:             "UTC",
+			Minmovent:            1,
+			Minmov:               1,
+			Minmovement2:         0,
+			Minmov2:              0,
+			Pricescale:           pricescale,
+			SupportedResolutions: []string{"1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "1D", "3D", "1W"},
+			HasIntraday:          true,
+			HasDaily:             true,
+			HasWeeklyAndMonthly:  false,
+			DataStatus:           "streaming",
+		}
+		return c.JSON(http.StatusOK, a)
+	} else {
+		a := &model.Symbol{
+			Symbol:               symbol,
+			Ticker:               symbol,
+			Name:                 symbol,
+			FullName:             symbol,
+			Description:          symbol,
+			Exchange:             "",
+			ListedExchange:       "",
+			Type:                 "forex",
+			CurrencyCode:         "USD",
+			Session:              "2200-2200",
+			Timezone:             "UTC",
+			Minmovent:            1,
+			Minmov:               1,
+			Minmovement2:         0,
+			Minmov2:              0,
+			Pricescale:           pricescale,
+			SupportedResolutions: []string{"1", "3", "5", "15", "30", "60", "120", "240", "360", "480", "720", "1D", "3D"},
+			HasIntraday:          true,
+			HasDaily:             true,
+			HasWeeklyAndMonthly:  false,
+			DataStatus:           "streaming",
+		}
+		return c.JSON(http.StatusOK, a)
 	}
-	return c.JSON(http.StatusOK, a)
 }
