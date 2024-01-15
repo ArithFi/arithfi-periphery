@@ -17,6 +17,11 @@ const (
 )
 
 func GetKlines(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
+	cache := getFromCache(symbol, interval, startTime/1000, endTime/1000, countback)
+	if cache != nil {
+		fmt.Println("cache hit", cache)
+		return cache
+	}
 	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10) + "&limit=" + strconv.FormatInt(countback, 10))
 	var arr [][]interface{}
 	err := json.Unmarshal(body, &arr)
@@ -27,31 +32,26 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64, c
 	exchangeInfo := make([]model.Kline, len(arr))
 	for i, data := range arr {
 		exchangeInfo[i] = model.Kline{
-			OpenTime:         int64(data[0].(float64) / 1000),
-			Open:             data[1].(string),
-			High:             data[2].(string),
-			Low:              data[3].(string),
-			Close:            data[4].(string),
-			Volume:           data[5].(string),
-			CloseTime:        int64(data[6].(float64) / 1000),
-			QuoteVolume:      data[7].(string),
-			NumberOfTrades:   int64(data[8].(float64)),
-			TakerBaseVolume:  data[9].(string),
-			TakerQuoteVolume: data[10].(string),
-			Ignore:           data[11].(string),
+			OpenTime: int64(data[0].(float64) / 1000),
+			Open:     data[1].(string),
+			High:     data[2].(string),
+			Low:      data[3].(string),
+			Close:    data[4].(string),
+			Volume:   data[5].(string),
 		}
 	}
 	go func() {
-		err := insertKlines(&exchangeInfo, interval, symbol)
+		err := cacheKlines(&exchangeInfo, interval, symbol)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 	}()
+	fmt.Println("api hit", exchangeInfo)
 	return &exchangeInfo
 }
 
-func insertKlines(exchangeInfo *[]model.Kline, resolution string, symbol string) error {
+func cacheKlines(exchangeInfo *[]model.Kline, resolution string, symbol string) error {
 	tx, err := mysql.ArithFiDB.Begin()
 	if err != nil {
 		return err
@@ -94,6 +94,25 @@ func insertKlines(exchangeInfo *[]model.Kline, resolution string, symbol string)
 	}
 	fmt.Println("Insert success", symbol, resolution, len(*exchangeInfo))
 	return nil
+}
+
+func getFromCache(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
+	result, _ := mysql.ArithFiDB.Query("select timestamp, open, high, low, close, volume from kline_cache where symbol = ? and resolution = ? and timestamp >= ? and timestamp < ? order by timestamp desc limit ?", symbol, interval, startTime, endTime, countback)
+
+	exchangeInfo := make([]model.Kline, 0)
+	for result.Next() {
+		var data model.Kline
+		err := result.Scan(&data.OpenTime, &data.Open, &data.High, &data.Low, &data.Close, &data.Volume)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		exchangeInfo = append(exchangeInfo, data)
+	}
+	if len(exchangeInfo) < int(countback) {
+		return nil
+	}
+	return &exchangeInfo
 }
 
 func requestAPI(endpoint string) []byte {
