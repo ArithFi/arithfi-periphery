@@ -19,7 +19,7 @@ const (
 func GetKlines(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
 	cache := getFromCache(symbol, interval, startTime/1000, endTime/1000, countback)
 	if cache != nil {
-		fmt.Println("cache hit", cache)
+		fmt.Println("cache hit")
 		return cache
 	}
 	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10) + "&limit=" + strconv.FormatInt(countback, 10))
@@ -41,13 +41,16 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64, c
 		}
 	}
 	go func() {
+		if len(exchangeInfo) == 0 {
+			return
+		}
 		err := cacheKlines(&exchangeInfo, interval, symbol)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 	}()
-	fmt.Println("api hit", exchangeInfo)
+	fmt.Println("api hit")
 	return &exchangeInfo
 }
 
@@ -97,7 +100,7 @@ func cacheKlines(exchangeInfo *[]model.Kline, resolution string, symbol string) 
 }
 
 func getFromCache(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
-	result, _ := mysql.ArithFiDB.Query("select timestamp, open, high, low, close, volume from kline_cache where symbol = ? and resolution = ? and timestamp >= ? and timestamp < ? order by timestamp desc limit ?", symbol, interval, startTime, endTime, countback)
+	result, _ := mysql.ArithFiDB.Query("select timestamp, open, high, low, close, volume from kline_cache where symbol = ? and resolution = ? and timestamp >= ? and timestamp < ? order by timestamp limit ?", symbol, interval, startTime, endTime, countback)
 
 	exchangeInfo := make([]model.Kline, 0)
 	for result.Next() {
@@ -109,9 +112,11 @@ func getFromCache(symbol string, interval string, startTime int64, endTime int64
 		}
 		exchangeInfo = append(exchangeInfo, data)
 	}
-	if len(exchangeInfo) < int(countback) {
+
+	if len(exchangeInfo) == 0 {
 		return nil
 	}
+
 	return &exchangeInfo
 }
 
