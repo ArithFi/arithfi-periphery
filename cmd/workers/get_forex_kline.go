@@ -77,6 +77,11 @@ func requestAPI(endpoint string) []byte {
 
 func main() {
 	ticker := time.NewTicker(2 * time.Second)
+	go KlineIntervalWorker("AUDUSD", "500")
+	go KlineIntervalWorker("EURUSD", "500")
+	go KlineIntervalWorker("USDJPY", "500")
+	go KlineIntervalWorker("USDCAD", "500")
+	go KlineIntervalWorker("GBPUSD", "500")
 
 	for {
 		select {
