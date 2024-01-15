@@ -2,7 +2,6 @@ package binance
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/arithfi/arithfi-periphery/configs/mysql"
 	"github.com/arithfi/arithfi-periphery/model"
 	"io"
@@ -19,7 +18,6 @@ const (
 func GetKlines(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
 	cache := getFromCache(symbol, interval, startTime/1000, endTime/1000, countback)
 	if cache != nil {
-		fmt.Println("cache hit")
 		return cache
 	}
 	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10) + "&limit=" + strconv.FormatInt(countback, 10))
@@ -50,7 +48,6 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64, c
 			return
 		}
 	}()
-	fmt.Println("api hit")
 	return &exchangeInfo
 }
 
@@ -95,7 +92,6 @@ func cacheKlines(exchangeInfo *[]model.Kline, resolution string, symbol string) 
 	if err != nil {
 		return err
 	}
-	fmt.Println("Insert success", symbol, resolution, len(*exchangeInfo))
 	return nil
 }
 
