@@ -15,7 +15,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -v -o bin/rest-api/main cmd/rest-api/main.
     CGO_ENABLED=0 GOOS=linux go build -v -o bin/workers/transferLogsRetrieve cmd/workers/transferLogsRetrieve.go && \
     CGO_ENABLED=0 GOOS=linux go build -v -o bin/workers/transferLogsAnalysis cmd/workers/transferLogsAnalysis.go && \
     CGO_ENABLED=0 GOOS=linux go build -v -o bin/workers/tokenholderSnapshotCreate cmd/workers/tokenholderSnapshotCreate.go && \
-    CGO_ENABLED=0 GOOS=linux go build -v -o bin/workers/pancakeswapSnapshotCreate cmd/workers/pancakeswapSnapshotCreate.go
+    CGO_ENABLED=0 GOOS=linux go build -v -o bin/workers/pancakeswapSnapshotCreate cmd/workers/pancakeswapSnapshotCreate.go && \
+    CGO_ENABLED=0 GOOS=linux go build -v -o bin/workers/getForexKline cmd/workers/getForexKline.go
 
 FROM scratch
 
