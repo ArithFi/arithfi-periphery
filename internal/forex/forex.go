@@ -25,7 +25,7 @@ func getFromCache(symbol string, interval string, startTime int64, endTime int64
 		var data model.Kline
 		err := result.Scan(&data.OpenTime, &data.Open, &data.High, &data.Low, &data.Close, &data.Volume)
 		if err != nil {
-			log.Println(err)
+			log.Println("Get from cache error")
 			return nil
 		}
 		exchangeInfo = append(exchangeInfo, data)

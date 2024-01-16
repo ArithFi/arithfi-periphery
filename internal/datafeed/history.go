@@ -57,7 +57,7 @@ func History(c echo.Context) error {
 
 		result := model.Bar{}
 		result.S = "ok"
-		if len(*klines) == 0 {
+		if klines == nil {
 			return c.JSON(http.StatusOK, result)
 		}
 		for _, data := range *klines {
@@ -80,7 +80,7 @@ func History(c echo.Context) error {
 
 		result := model.Bar{}
 		result.S = "ok"
-		if len(*klines) == 0 {
+		if klines == nil {
 			return c.JSON(http.StatusOK, result)
 		}
 		for _, data := range *klines {

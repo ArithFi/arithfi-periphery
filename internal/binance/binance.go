@@ -24,7 +24,7 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64, c
 	var arr [][]interface{}
 	err := json.Unmarshal(body, &arr)
 	if err != nil {
-		log.Println(err)
+		log.Println("Unmarshal error")
 		return nil
 	}
 	exchangeInfo := make([]model.Kline, len(arr))
@@ -103,7 +103,7 @@ func getFromCache(symbol string, interval string, startTime int64, endTime int64
 		var data model.Kline
 		err := result.Scan(&data.OpenTime, &data.Open, &data.High, &data.Low, &data.Close, &data.Volume)
 		if err != nil {
-			log.Println(err)
+			log.Println("Get from cache error")
 			return nil
 		}
 		exchangeInfo = append(exchangeInfo, data)

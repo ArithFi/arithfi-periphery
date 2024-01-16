@@ -10,12 +10,6 @@ import (
 	"time"
 )
 
-type (
-	Host struct {
-		Echo *echo.Echo
-	}
-)
-
 func main() {
 	e := echo.New()
 

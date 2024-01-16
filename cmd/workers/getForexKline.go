@@ -110,7 +110,7 @@ func GetByInterval(symbol string, interval string, limit string) *[]model.Kline 
 	var arr [][]interface{}
 	err := json.Unmarshal(body, &arr)
 	if err != nil {
-		log.Println(err)
+		log.Println("Unmarshal error")
 		return nil
 	}
 	exchangeInfo := make([]model.Kline, len(arr))
@@ -130,7 +130,7 @@ func GetByInterval(symbol string, interval string, limit string) *[]model.Kline 
 		}
 		err := cacheKlines(&exchangeInfo, interval, symbol)
 		if err != nil {
-			log.Println(err)
+			log.Println("Cache error")
 			return
 		}
 	}()

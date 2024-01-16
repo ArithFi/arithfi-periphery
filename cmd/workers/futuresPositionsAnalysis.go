@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
 	"go.mongodb.org/mongo-driver/bson"
+	mongo2 "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"time"
@@ -27,7 +28,13 @@ func main() {
 		if err != nil {
 			return
 		}
-		defer cursor.Close(ctx)
+		defer func(cursor *mongo2.Cursor, ctx context.Context) {
+			err := cursor.Close(ctx)
+			if err != nil {
+				log.Println("Error closing cursor:", err)
+				return
+			}
+		}(cursor, ctx)
 
 		for cursor.Next(ctx) {
 			var position bson.M
