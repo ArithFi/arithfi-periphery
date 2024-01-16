@@ -10,31 +10,31 @@ services:
       - .env
     command: ./rest-api/main
     restart: always
-#  transferLogsRetrieve:
+#  transfer-logs-retrieve:
 #    build: .
 #    env_file:
 #      - .env
 #    command: ./workers/transferLogsRetrieve
 #    restart: always
-#  transferLogsAnalysis:
+#  transfer-logs-analysis:
 #    build: .
 #    env_file:
 #      - .env
 #    command: ./workers/transferLogsAnalysis
 #    restart: always
-#  tokenholderSnapshotCreate:
+#  tokenholder-snapshot-create:
 #    build: .
 #    env_file:
 #      - .env
 #    command: ./workers/tokenholderSnapshotCreate
 #    restart: always
-#  pancakeswapSnapshotCreate:
+#  pancakeswap-snapshot-create:
 #    build: .
 #    env_file:
 #      - .env
 #    command: ./workers/pancakeswapSnapshotCreate
 #    restart: always
-  getForexKline:
+  get-forex-kline:
     build: .
     env_file:
       - .env
