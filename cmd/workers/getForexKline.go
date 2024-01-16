@@ -83,6 +83,17 @@ func main() {
 	go KlineIntervalWorker("USDCAD", "500")
 	go KlineIntervalWorker("GBPUSD", "500")
 
+	go KlineIntervalWorker("ETHUSDT", "500")
+	go KlineIntervalWorker("BTCUSDT", "500")
+	go KlineIntervalWorker("BNBUSDT", "500")
+	go KlineIntervalWorker("MATICUSDT", "500")
+	go KlineIntervalWorker("ADAUSDT", "500")
+	go KlineIntervalWorker("DOGEUSDT", "500")
+	go KlineIntervalWorker("XRPUSDT", "500")
+	go KlineIntervalWorker("SOLUSDT", "500")
+	go KlineIntervalWorker("LTCUSDT", "500")
+	go KlineIntervalWorker("AVAXUSDT", "500")
+
 	for {
 		select {
 		case <-ticker.C:
@@ -92,6 +103,17 @@ func main() {
 			go KlineIntervalWorker("USDJPY", "1")
 			go KlineIntervalWorker("USDCAD", "1")
 			go KlineIntervalWorker("GBPUSD", "1")
+
+			go KlineIntervalWorker("ETHUSDT", "1")
+			go KlineIntervalWorker("BTCUSDT", "1")
+			go KlineIntervalWorker("BNBUSDT", "1")
+			go KlineIntervalWorker("MATICUSDT", "1")
+			go KlineIntervalWorker("ADAUSDT", "1")
+			go KlineIntervalWorker("DOGEUSDT", "1")
+			go KlineIntervalWorker("XRPUSDT", "1")
+			go KlineIntervalWorker("SOLUSDT", "1")
+			go KlineIntervalWorker("LTCUSDT", "1")
+			go KlineIntervalWorker("AVAXUSDT", "1")
 		}
 	}
 }
