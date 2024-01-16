@@ -51,10 +51,11 @@ func History(c echo.Context) error {
 		klines := binance.GetKlines(symbol, resolution, from*1000, to*1000)
 
 		result := model.Bar{}
-		result.S = "ok"
 		if klines == nil {
+			result.S = "no_data"
 			return c.JSON(http.StatusOK, result)
 		}
+		result.S = "ok"
 		for _, data := range *klines {
 			result.T = append(result.T, data.OpenTime)
 			openPrice, _ := strconv.ParseFloat(data.Open, 64)
