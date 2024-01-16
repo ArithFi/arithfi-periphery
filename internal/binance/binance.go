@@ -17,10 +17,10 @@ const (
 )
 
 func GetKlines(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
-	cache := getFromCache(symbol, interval, startTime/1000, endTime/1000)
-	if cache != nil {
-		return cache
-	}
+	//cache := getFromCache(symbol, interval, startTime/1000, endTime/1000)
+	//if cache != nil {
+	//	return cache
+	//}
 
 	var from = startTime
 	var to = endTime
