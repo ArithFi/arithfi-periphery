@@ -130,7 +130,6 @@ func getFromCache(symbol string, interval string, startTime int64, endTime int64
 	}
 
 	var count = (endTime - startTime) / IntervalMap[interval]
-	log.Println(len(totalKlines), count)
 	if float64(len(totalKlines)) < float64(int(count))*0.9 {
 		return nil
 	}
