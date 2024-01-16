@@ -18,8 +18,8 @@ const (
 
 func GetKlines(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
 	cache := getFromCache(symbol, interval, startTime/1000, endTime/1000)
-	if cache != nil {
-		log.Println("cache hit", symbol, interval, startTime, endTime)
+	if cache != nil && len(*cache) > 0 {
+		log.Println("cache hit", symbol, interval, startTime, endTime, len(*cache))
 		return cache
 	}
 
@@ -123,6 +123,10 @@ func getFromCache(symbol string, interval string, startTime int64, endTime int64
 			return nil
 		}
 		totalKlines = append(totalKlines, data)
+	}
+
+	if len(totalKlines) == 0 {
+		return nil
 	}
 
 	var count = (startTime - endTime) / (IntervalMap[interval] * 1000)
