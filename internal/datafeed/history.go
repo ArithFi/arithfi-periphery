@@ -45,15 +45,10 @@ func History(c echo.Context) error {
 		log.Println("to : " + c.QueryParam("to"))
 		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "to parse error"})
 	}
-	countback, err := strconv.ParseInt(c.QueryParam("countback"), 0, 64)
-	if err != nil {
-		log.Println("countback : " + c.QueryParam("countback"))
-		return c.JSON(http.StatusConflict, model.UDFError{S: "error", Errmsg: "countback parse error"})
-	}
 	symbol = strings.ReplaceAll(symbol, "/", "")
 
 	if strings.Contains(symbol, "USDT") {
-		klines := binance.GetKlines(symbol, resolution, from*1000, to*1000, countback)
+		klines := binance.GetKlines(symbol, resolution, from*1000, to*1000)
 
 		result := model.Bar{}
 		result.S = "ok"
@@ -76,7 +71,7 @@ func History(c echo.Context) error {
 
 		return c.JSON(http.StatusOK, result)
 	} else {
-		klines := forex.GetKlines(symbol, resolution, from*1000, to*1000, countback)
+		klines := forex.GetKlines(symbol, resolution, from*1000, to*1000)
 
 		result := model.Bar{}
 		result.S = "ok"

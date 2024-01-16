@@ -7,9 +7,9 @@ import (
 	"log"
 )
 
-func GetKlines(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
-	fmt.Println(symbol, interval, startTime, endTime, countback)
-	cache := getFromCache(symbol, interval, startTime/1000, endTime/1000, countback)
+func GetKlines(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
+	fmt.Println(symbol, interval, startTime, endTime)
+	cache := getFromCache(symbol, interval, startTime/1000, endTime/1000)
 	if cache != nil {
 		fmt.Println("cache hit")
 		return cache
@@ -17,8 +17,8 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64, c
 	return nil
 }
 
-func getFromCache(symbol string, interval string, startTime int64, endTime int64, countback int64) *[]model.Kline {
-	result, _ := mysql.ArithFiDB.Query("select timestamp, open, high, low, close, volume from kline_cache where symbol = ? and resolution = ? and timestamp >= ? and timestamp < ? order by timestamp limit ?", symbol, interval, startTime, endTime, countback)
+func getFromCache(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
+	result, _ := mysql.ArithFiDB.Query("select timestamp, open, high, low, close, volume from kline_cache where symbol = ? and resolution = ? and timestamp >= ? and timestamp < ? order by timestamp limit ?", symbol, interval, startTime, endTime)
 
 	exchangeInfo := make([]model.Kline, 0)
 	for result.Next() {
@@ -29,10 +29,6 @@ func getFromCache(symbol string, interval string, startTime int64, endTime int64
 			return nil
 		}
 		exchangeInfo = append(exchangeInfo, data)
-	}
-
-	if len(exchangeInfo) < int(countback) {
-		return nil
 	}
 
 	return &exchangeInfo

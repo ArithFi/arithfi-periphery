@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 const (
@@ -20,35 +21,48 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64, c
 	if cache != nil {
 		return cache
 	}
-	body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(startTime, 10) + "&endTime=" + strconv.FormatInt(endTime, 10) + "&limit=" + strconv.FormatInt(countback, 10))
-	var arr [][]interface{}
-	err := json.Unmarshal(body, &arr)
-	if err != nil {
-		log.Println("Unmarshal error")
-		return nil
-	}
-	exchangeInfo := make([]model.Kline, len(arr))
-	for i, data := range arr {
-		exchangeInfo[i] = model.Kline{
-			OpenTime: int64(data[0].(float64) / 1000),
-			Open:     data[1].(string),
-			High:     data[2].(string),
-			Low:      data[3].(string),
-			Close:    data[4].(string),
-			Volume:   data[5].(string),
-		}
-	}
-	go func() {
-		if len(exchangeInfo) == 0 {
-			return
-		}
-		err := cacheKlines(&exchangeInfo, interval, symbol)
+
+	var from = startTime
+	var to = endTime
+	var totalKlines []model.Kline
+
+	for {
+		body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(from, 10) + "&endTime=" + strconv.FormatInt(to, 10) + "&limit=500")
+		var arr [][]interface{}
+		err := json.Unmarshal(body, &arr)
 		if err != nil {
-			log.Println(err)
-			return
+			log.Println("Unmarshal error")
+			return nil
 		}
-	}()
-	return &exchangeInfo
+		currKlines := make([]model.Kline, len(arr))
+		for i, data := range arr {
+			currKlines[i] = model.Kline{
+				OpenTime: int64(data[0].(float64) / 1000),
+				Open:     data[1].(string),
+				High:     data[2].(string),
+				Low:      data[3].(string),
+				Close:    data[4].(string),
+				Volume:   data[5].(string),
+			}
+		}
+		totalKlines = append(totalKlines, currKlines...)
+		if len(currKlines) == 500 {
+			from = currKlines[len(currKlines)-1].OpenTime + 1
+		} else {
+			if len(totalKlines) == 0 {
+				return &totalKlines
+			} else {
+				go func() {
+					err := cacheKlines(&totalKlines, interval, symbol)
+					if err != nil {
+						log.Println(err)
+					}
+				}()
+				return &totalKlines
+			}
+		}
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func cacheKlines(exchangeInfo *[]model.Kline, resolution string, symbol string) error {
