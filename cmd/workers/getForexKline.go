@@ -87,17 +87,6 @@ func main() {
 			go KlineIntervalWorker("USDJPY", "500")
 			go KlineIntervalWorker("USDCAD", "500")
 			go KlineIntervalWorker("GBPUSD", "500")
-
-			go KlineIntervalWorker("ETHUSDT", "500")
-			go KlineIntervalWorker("BTCUSDT", "500")
-			go KlineIntervalWorker("BNBUSDT", "500")
-			go KlineIntervalWorker("MATICUSDT", "500")
-			go KlineIntervalWorker("ADAUSDT", "500")
-			go KlineIntervalWorker("DOGEUSDT", "500")
-			go KlineIntervalWorker("XRPUSDT", "500")
-			go KlineIntervalWorker("SOLUSDT", "500")
-			go KlineIntervalWorker("LTCUSDT", "500")
-			go KlineIntervalWorker("AVAXUSDT", "500")
 		}
 	}
 }
