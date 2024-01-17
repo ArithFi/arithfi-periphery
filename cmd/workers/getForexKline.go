@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -77,27 +78,60 @@ func requestAPI(endpoint string) []byte {
 
 func main() {
 	ticker := time.NewTicker(2 * time.Second)
+	var limitsArray = []int{1, 1, 1, 1, 1, 1}
+	var count = 0
 
 	for {
+		if count/60/500 == 0 {
+			limitsArray[0] = 500
+		} else {
+			limitsArray[0] = 1
+		}
+		if count/60/500/5 == 0 {
+			limitsArray[1] = 500
+		} else {
+			limitsArray[1] = 1
+		}
+		if count/60/500/15 == 0 {
+			limitsArray[2] = 500
+		} else {
+			limitsArray[2] = 1
+		}
+		if count/60/500/30 == 0 {
+			limitsArray[3] = 500
+		} else {
+			limitsArray[3] = 1
+		}
+		if count/60/500/60 == 0 {
+			limitsArray[4] = 500
+		} else {
+			limitsArray[4] = 1
+		}
+		if count/60/500/60/24 == 0 {
+			limitsArray[5] = 500
+		} else {
+			limitsArray[5] = 1
+		}
 		select {
 		case <-ticker.C:
 			fmt.Println("Tick at", time.Now())
-			go KlineIntervalWorker("AUDUSD", "500")
-			go KlineIntervalWorker("EURUSD", "500")
-			go KlineIntervalWorker("USDJPY", "500")
-			go KlineIntervalWorker("USDCAD", "500")
-			go KlineIntervalWorker("GBPUSD", "500")
+			count++
+			go KlineIntervalWorker("AUDUSD", limitsArray...)
+			go KlineIntervalWorker("EURUSD", limitsArray...)
+			go KlineIntervalWorker("USDJPY", limitsArray...)
+			go KlineIntervalWorker("USDCAD", limitsArray...)
+			go KlineIntervalWorker("GBPUSD", limitsArray...)
 		}
 	}
 }
 
-func KlineIntervalWorker(symbol string, limit string) {
-	go GetByInterval(symbol, "1m", limit)
-	go GetByInterval(symbol, "5m", limit)
-	go GetByInterval(symbol, "15m", limit)
-	go GetByInterval(symbol, "30m", limit)
-	go GetByInterval(symbol, "1h", limit)
-	go GetByInterval(symbol, "1d", limit)
+func KlineIntervalWorker(symbol string, limitsArray ...int) {
+	go GetByInterval(symbol, "1m", strconv.Itoa(limitsArray[0]))
+	go GetByInterval(symbol, "5m", strconv.Itoa(limitsArray[1]))
+	go GetByInterval(symbol, "15m", strconv.Itoa(limitsArray[2]))
+	go GetByInterval(symbol, "30m", strconv.Itoa(limitsArray[3]))
+	go GetByInterval(symbol, "1h", strconv.Itoa(limitsArray[4]))
+	go GetByInterval(symbol, "1d", strconv.Itoa(limitsArray[5]))
 }
 
 func GetByInterval(symbol string, interval string, limit string) *[]model.Kline {
