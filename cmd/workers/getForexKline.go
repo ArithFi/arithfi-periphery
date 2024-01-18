@@ -82,34 +82,19 @@ func main() {
 	var count = 0
 
 	for {
-		if count/60/500 == 0 {
+		if count/60 == 0 {
 			limitsArray[0] = 500
-		} else {
-			limitsArray[0] = 1
-		}
-		if count/60/500/5 == 0 {
 			limitsArray[1] = 500
-		} else {
-			limitsArray[1] = 1
-		}
-		if count/60/500/15 == 0 {
 			limitsArray[2] = 500
-		} else {
-			limitsArray[2] = 1
-		}
-		if count/60/500/30 == 0 {
 			limitsArray[3] = 500
-		} else {
-			limitsArray[3] = 1
-		}
-		if count/60/500/60 == 0 {
 			limitsArray[4] = 500
-		} else {
-			limitsArray[4] = 1
-		}
-		if count/60/500/60/24 == 0 {
 			limitsArray[5] = 500
 		} else {
+			limitsArray[0] = 1
+			limitsArray[1] = 1
+			limitsArray[2] = 1
+			limitsArray[3] = 1
+			limitsArray[4] = 1
 			limitsArray[5] = 1
 		}
 		select {
