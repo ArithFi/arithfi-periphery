@@ -78,45 +78,35 @@ func requestAPI(endpoint string) []byte {
 
 func main() {
 	ticker := time.NewTicker(2 * time.Second)
-	var limitsArray = []int{1, 1, 1, 1, 1, 1}
 	var count = 0
+	var limit = 1
 
 	for {
 		if count/60 == 0 {
-			limitsArray[0] = 500
-			limitsArray[1] = 500
-			limitsArray[2] = 500
-			limitsArray[3] = 500
-			limitsArray[4] = 500
-			limitsArray[5] = 500
+			limit = 500
 		} else {
-			limitsArray[0] = 1
-			limitsArray[1] = 1
-			limitsArray[2] = 1
-			limitsArray[3] = 1
-			limitsArray[4] = 1
-			limitsArray[5] = 1
+			limit = 1
 		}
 		select {
 		case <-ticker.C:
 			fmt.Println("Tick at", time.Now())
 			count++
-			go KlineIntervalWorker("AUDUSD", limitsArray...)
-			go KlineIntervalWorker("EURUSD", limitsArray...)
-			go KlineIntervalWorker("USDJPY", limitsArray...)
-			go KlineIntervalWorker("USDCAD", limitsArray...)
-			go KlineIntervalWorker("GBPUSD", limitsArray...)
+			go KlineIntervalWorker("AUDUSD", limit)
+			go KlineIntervalWorker("EURUSD", limit)
+			go KlineIntervalWorker("USDJPY", limit)
+			go KlineIntervalWorker("USDCAD", limit)
+			go KlineIntervalWorker("GBPUSD", limit)
 		}
 	}
 }
 
-func KlineIntervalWorker(symbol string, limitsArray ...int) {
-	go GetByInterval(symbol, "1m", strconv.Itoa(limitsArray[0]))
-	go GetByInterval(symbol, "5m", strconv.Itoa(limitsArray[1]))
-	go GetByInterval(symbol, "15m", strconv.Itoa(limitsArray[2]))
-	go GetByInterval(symbol, "30m", strconv.Itoa(limitsArray[3]))
-	go GetByInterval(symbol, "1h", strconv.Itoa(limitsArray[4]))
-	go GetByInterval(symbol, "1d", strconv.Itoa(limitsArray[5]))
+func KlineIntervalWorker(symbol string, limit int) {
+	go GetByInterval(symbol, "1m", strconv.Itoa(limit))
+	go GetByInterval(symbol, "5m", strconv.Itoa(limit))
+	go GetByInterval(symbol, "15m", strconv.Itoa(limit))
+	go GetByInterval(symbol, "30m", strconv.Itoa(limit))
+	go GetByInterval(symbol, "1h", strconv.Itoa(limit))
+	go GetByInterval(symbol, "1d", strconv.Itoa(limit))
 }
 
 func GetByInterval(symbol string, interval string, limit string) *[]model.Kline {
