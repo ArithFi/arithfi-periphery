@@ -21,7 +21,8 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 	var totalKlines []model.Kline
 
 	for {
-		body := requestAPI(klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(from, 10) + "&endTime=" + strconv.FormatInt(to, 10) + "&limit=500")
+		var uri = klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(from, 10) + "&endTime=" + strconv.FormatInt(to, 10) + "&limit=500"
+		body := requestAPI(uri)
 		var arr [][]interface{}
 		err := json.Unmarshal(body, &arr)
 		if err != nil {
