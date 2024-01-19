@@ -79,6 +79,7 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 				if err != nil {
 					log.Fatalf("Failed to set klines in Redis: %v", err)
 				}
+				log.Println("Set to cache: ", uri)
 				return &totalKlines
 			}
 		}
