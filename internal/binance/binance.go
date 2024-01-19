@@ -38,10 +38,10 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 				err := json.Unmarshal(cacheArray, &cacheKlines)
 				if err != nil {
 					log.Println("Unmarshal error")
-					return nil
+				} else {
+					log.Println("Get from cache: ", uri)
+					return &cacheKlines
 				}
-				log.Println("Get from cache: ", uri)
-				return &cacheKlines
 			}
 		}
 
