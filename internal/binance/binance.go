@@ -29,20 +29,20 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 
 		if cacheArrayCmd.Err() != nil {
 			log.Println("Error getting cache:", cacheArrayCmd.Err())
-			return nil
-		}
-		cacheArrayStr := cacheArrayCmd.Val()
+		} else {
+			cacheArrayStr := cacheArrayCmd.Val()
 
-		if cacheArrayStr != "" {
-			var cacheKlines []model.Kline
-			cacheArray := []byte(cacheArrayStr)
-			err := json.Unmarshal(cacheArray, &cacheKlines)
-			if err != nil {
-				log.Println("Unmarshal error")
-				return nil
+			if cacheArrayStr != "" {
+				var cacheKlines []model.Kline
+				cacheArray := []byte(cacheArrayStr)
+				err := json.Unmarshal(cacheArray, &cacheKlines)
+				if err != nil {
+					log.Println("Unmarshal error")
+					return nil
+				}
+				log.Println("Get from cache: ", uri)
+				return &cacheKlines
 			}
-			log.Println("Get from cache: ", uri)
-			return &cacheKlines
 		}
 
 		body := requestAPI(uri)
