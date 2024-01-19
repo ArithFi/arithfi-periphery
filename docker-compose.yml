@@ -10,6 +10,8 @@ services:
       - .env
     command: ./rest-api/main
     restart: always
+    networks:
+      - backend
 #  transfer-logs-retrieve:
 #    build: .
 #    env_file:
@@ -40,3 +42,13 @@ services:
       - .env
     command: ./workers/getForexKline
     restart: always
+
+  redis:
+    image: redis
+    restart: always
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

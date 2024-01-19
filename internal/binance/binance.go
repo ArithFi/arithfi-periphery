@@ -1,7 +1,9 @@
 package binance
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/arithfi/arithfi-periphery/configs/cache"
 	"github.com/arithfi/arithfi-periphery/model"
 	"io"
 	"log"
@@ -19,9 +21,30 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 	var from = startTime
 	var to = endTime
 	var totalKlines []model.Kline
+	ctx := context.Background()
 
 	for {
 		var uri = klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(from, 10) + "&endTime=" + strconv.FormatInt(to, 10) + "&limit=500"
+		cacheArrayCmd := cache.CACHE.Get(ctx, uri)
+
+		if cacheArrayCmd.Err() != nil {
+			log.Println("Error getting cache:", cacheArrayCmd.Err())
+			return nil
+		}
+		cacheArrayStr := cacheArrayCmd.Val()
+
+		if cacheArrayStr != "" {
+			var cacheKlines []model.Kline
+			cacheArray := []byte(cacheArrayStr)
+			err := json.Unmarshal(cacheArray, &cacheKlines)
+			if err != nil {
+				log.Println("Unmarshal error")
+				return nil
+			}
+			log.Println("Get from cache: ", uri)
+			return &cacheKlines
+		}
+
 		body := requestAPI(uri)
 		var arr [][]interface{}
 		err := json.Unmarshal(body, &arr)
@@ -47,6 +70,15 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 			if len(totalKlines) == 0 {
 				return nil
 			} else {
+				totalKlinesJSON, err := json.Marshal(totalKlines)
+				if err != nil {
+					log.Fatalf("Failed to marshal klines: %v", err)
+				}
+				totalKlinesStr := string(totalKlinesJSON)
+				_, err = cache.CACHE.Set(ctx, uri, totalKlinesStr, 5).Result()
+				if err != nil {
+					log.Fatalf("Failed to set klines in Redis: %v", err)
+				}
 				return &totalKlines
 			}
 		}
