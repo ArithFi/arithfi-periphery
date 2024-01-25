@@ -91,9 +91,6 @@ func main() {
 				if snapshotMap[date][to] == nil {
 					snapshotMap[date][to] = make(map[string]*big.Float)
 				}
-				if snapshotMap[date][to]["totalSellVolume"] == nil {
-					snapshotMap[date][to]["totalSellVolume"] = new(big.Float)
-				}
 				if snapshotMap[date][to]["totalBuyVolume"] == nil {
 					snapshotMap[date][to]["totalBuyVolume"] = new(big.Float)
 				}
