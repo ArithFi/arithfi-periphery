@@ -12,30 +12,30 @@ services:
     restart: always
     networks:
       - backend
-#  transfer-logs-retrieve:
-#    build: .
-#    env_file:
-#      - .env
-#    command: ./workers/transferLogsRetrieve
-#    restart: always
-#  transfer-logs-analysis:
-#    build: .
-#    env_file:
-#      - .env
-#    command: ./workers/transferLogsAnalysis
-#    restart: always
-#  tokenholder-snapshot-create:
-#    build: .
-#    env_file:
-#      - .env
-#    command: ./workers/tokenholderSnapshotCreate
-#    restart: always
-#  pancakeswap-snapshot-create:
-#    build: .
-#    env_file:
-#      - .env
-#    command: ./workers/pancakeswapSnapshotCreate
-#    restart: always
+  transfer-logs-retrieve:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/transferLogsRetrieve
+    restart: always
+  transfer-logs-analysis:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/transferLogsAnalysis
+    restart: always
+  tokenholder-snapshot-create:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/tokenholderSnapshotCreate
+    restart: always
+  pancakeswap-snapshot-create:
+    build: .
+    env_file:
+      - .env
+    command: ./workers/pancakeswapSnapshotCreate
+    restart: always
   get-forex-kline:
     build: .
     env_file:
