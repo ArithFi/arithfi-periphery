@@ -36,12 +36,12 @@ services:
       - .env
     command: ./workers/pancakeswapSnapshotCreate
     restart: always
-  get-forex-kline:
-    build: .
-    env_file:
-      - .env
-    command: ./workers/getForexKline
-    restart: always
+#  get-forex-kline:
+#    build: .
+#    env_file:
+#      - .env
+#    command: ./workers/getForexKline
+#    restart: always
 
   redis:
     image: redis
