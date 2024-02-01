@@ -21,6 +21,35 @@ func ConvertWeiToEth(wei *big.Int) *big.Float {
 	return ethValue
 }
 
+func GenerateTxTag(from string, to string, amountETH *big.Float) string {
+	fromNickname := "用户" + from[:4]
+	toNickname := "用户" + from[:4]
+	doWhat := "转账"
+	howMuch := amountETH.String()
+	fromIsDex := false
+	toIsDex := false
+
+	if from == "0xAC4C8faBbd1b7e6A01Afd87a17570bBFA28c7a38" {
+		fromNickname = "在 PancakeSwap 上，"
+		doWhat = "买入"
+		fromIsDex = true
+	}
+
+	if to == "0xAC4C8faBbd1b7e6A01Afd87a17570bBFA28c7a38" {
+		toNickname = "PancakeSwap V2"
+		doWhat = "卖出"
+		toIsDex = true
+	}
+
+	if fromIsDex {
+		return toNickname + " " + fromNickname + " " + doWhat + " " + howMuch + " ATF"
+	} else if toIsDex {
+		return fromNickname + " " + toNickname + " " + doWhat + " " + howMuch + " ATF"
+	} else {
+		return fromNickname + " " + doWhat + " " + howMuch + "ATF 给 " + toNickname
+	}
+}
+
 func main() {
 	var fromBlock = "0"
 	ctx := context.TODO()
@@ -49,7 +78,9 @@ func main() {
 				return
 			}
 			from, _ := topics[1].(string)
+			from = "0x" + from[len(from)-40:]
 			to, _ := topics[2].(string)
+			to = "0x" + to[len(to)-40:]
 			timestamp := new(big.Int)
 			timestamp.SetString(strings.TrimPrefix(_log["timestamp"].(string), "0x"), 16)
 			loc, err := time.LoadLocation("Asia/Shanghai")
@@ -57,17 +88,22 @@ func main() {
 				log.Println("transfer_logs_analysis: Error loading location", err)
 				return
 			}
-			date := time.Unix(timestamp.Int64(), 0).In(loc).Format("2006-01-02")
+			localdate := time.Unix(timestamp.Int64(), 0).In(loc).Format("2006-01-02")
+			localtime := time.Unix(timestamp.Int64(), 0).In(loc).Format("15:04:05")
 			amountWei := new(big.Int)
 			amountWei.SetString(strings.TrimPrefix(_log["data"].(string), "0x"), 16)
 			amountEth := ConvertWeiToEth(amountWei)
+			tag := GenerateTxTag(from, to, amountEth)
+
 			abstract := bson.M{
-				"from":   "0x" + from[len(from)-40:],
-				"to":     "0x" + to[len(to)-40:],
+				"from":   from,
+				"to":     to,
 				"amount": amountEth.String(),
+				"tag":    tag,
 			}
 			aggregate := bson.M{
-				"date":     date,
+				"date":     localdate,
+				"time":     localtime,
 				"location": "Asia/Shanghai",
 			}
 			_, err = collection.UpdateOne(ctx, bson.M{"_id": _log["_id"]}, bson.M{"$set": bson.M{"abstract": abstract, "aggregate": aggregate}})
@@ -75,7 +111,7 @@ func main() {
 				return
 			}
 
-			log.Println("transfer_logs_analysis: success, block", _log["blockNumber"], ", date", date)
+			log.Println("transfer_logs_analysis: success, block", _log["blockNumber"], ", date", localdate, ", time", localtime)
 			fromBlock = _log["blockNumber"].(string)
 		}
 		log.Println("transfer_logs_analysis: Sleep 10 seconds")
