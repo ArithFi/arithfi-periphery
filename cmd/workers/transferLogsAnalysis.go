@@ -52,6 +52,9 @@ func main() {
 			continue
 		}
 		walletAddress = strings.ToLower(walletAddress)
+		if UserTagMap[walletAddress] != "" {
+			continue
+		}
 		UserTagMap[walletAddress] = "KOL"
 	}
 
@@ -65,6 +68,9 @@ func main() {
 			continue
 		}
 		walletAddress = strings.ToLower(walletAddress)
+		if UserTagMap[walletAddress] != "" {
+			continue
+		}
 		UserTagMap[walletAddress] = "Trader"
 	}
 
