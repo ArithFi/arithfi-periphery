@@ -25,7 +25,7 @@ func GenerateTxTag(from string, to string, amountETH *big.Float) string {
 	fromNickname := "用户" + from[:7]
 	toNickname := "用户" + from[:7]
 	doWhat := "转账"
-	howMuch := amountETH.String()
+	howMuch := amountETH.Text('f', 2)
 	fromIsDex := false
 	toIsDex := false
 
