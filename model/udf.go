@@ -34,6 +34,9 @@ type Symbol struct {
 	Pricescale           int64    `json:"pricescale"`
 	SupportedResolutions []string `json:"supported_resolutions"`
 	IntradayMultipliers  []string `json:"intraday_multipliers"`
+	DailyMultipliers     []string `json:"daily_multipliers"`
+	WeeklyMultipliers    []string `json:"weekly_multipliers"`
+	MonthlyMultipliers   []string `json:"monthly_multipliers"`
 	HasIntraday          bool     `json:"has_intraday"`
 	HasDaily             bool     `json:"has_daily"`
 	HasWeeklyAndMonthly  bool     `json:"has_weekly_and_monthly"`
