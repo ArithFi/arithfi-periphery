@@ -18,5 +18,12 @@ func GenerateTxTag(from string, to string, amountETH *big.Float, userMap UserMap
 		toNickname = userMap[to]
 	}
 
-	return fromNickname + " 向 " + toNickname + " 转账 " + howMuch + " ATF"
+	if fromNickname == "PancakeSwap" {
+		return toNickname + "Buy" + howMuch + " ATF" + " On PancakeSwap"
+	}
+	if toNickname == "PancakeSwap" {
+		return fromNickname + "Sell" + howMuch + " ATF" + " On PancakeSwap"
+	}
+
+	return fromNickname + " Send " + howMuch + " ATF" + " To " + toNickname
 }
