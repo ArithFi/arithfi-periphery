@@ -29,14 +29,14 @@ func GenerateTxTag(from string, to string, amountETH *big.Float) string {
 	fromIsDex := false
 	toIsDex := false
 
-	if from == "0xAC4C8faBbd1b7e6A01Afd87a17570bBFA28c7a38" {
-		fromNickname = "在 PancakeSwap 上，"
+	if from == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
+		fromNickname = "在 PancakeSwap 上"
 		doWhat = "买入"
 		fromIsDex = true
 	}
 
-	if to == "0xAC4C8faBbd1b7e6A01Afd87a17570bBFA28c7a38" {
-		toNickname = "PancakeSwap V2"
+	if to == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
+		toNickname = "在 PancakeSwap 上"
 		doWhat = "卖出"
 		toIsDex = true
 	}
