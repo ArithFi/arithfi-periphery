@@ -33,6 +33,7 @@ type Symbol struct {
 	Minmov2              int64    `json:"minmov2"`
 	Pricescale           int64    `json:"pricescale"`
 	SupportedResolutions []string `json:"supported_resolutions"`
+	IntradayMultipliers  []string `json:"intraday_multipliers"`
 	HasIntraday          bool     `json:"has_intraday"`
 	HasDaily             bool     `json:"has_daily"`
 	HasWeeklyAndMonthly  bool     `json:"has_weekly_and_monthly"`
