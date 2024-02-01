@@ -22,8 +22,8 @@ func ConvertWeiToEth(wei *big.Int) *big.Float {
 }
 
 func GenerateTxTag(from string, to string, amountETH *big.Float) string {
-	fromNickname := "用户" + from[:4]
-	toNickname := "用户" + from[:4]
+	fromNickname := "用户" + from[:7]
+	toNickname := "用户" + from[:7]
 	doWhat := "转账"
 	howMuch := amountETH.String()
 	fromIsDex := false
@@ -42,11 +42,11 @@ func GenerateTxTag(from string, to string, amountETH *big.Float) string {
 	}
 
 	if fromIsDex {
-		return toNickname + " " + fromNickname + " " + doWhat + " " + howMuch + " ATF"
+		return toNickname + " " + fromNickname + " " + doWhat + " " + howMuch
 	} else if toIsDex {
-		return fromNickname + " " + toNickname + " " + doWhat + " " + howMuch + " ATF"
+		return fromNickname + " " + toNickname + " " + doWhat + " " + howMuch
 	} else {
-		return fromNickname + " " + doWhat + " " + howMuch + "ATF 给 " + toNickname
+		return fromNickname + " " + doWhat + " " + howMuch + " 给 " + toNickname
 	}
 }
 
@@ -110,8 +110,8 @@ func main() {
 			if err != nil {
 				return
 			}
-
 			log.Println("transfer_logs_analysis: success, block", _log["blockNumber"], ", date", localdate, ", time", localtime)
+			log.Println(tag)
 			fromBlock = _log["blockNumber"].(string)
 		}
 		log.Println("transfer_logs_analysis: Sleep 10 seconds")
