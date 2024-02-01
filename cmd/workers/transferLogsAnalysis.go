@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
+	"github.com/arithfi/arithfi-periphery/configs/mysql"
+	"github.com/arithfi/arithfi-periphery/internal/bscscan"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -21,35 +23,6 @@ func ConvertWeiToEth(wei *big.Int) *big.Float {
 	return ethValue
 }
 
-func GenerateTxTag(from string, to string, amountETH *big.Float) string {
-	fromNickname := "用户" + from[:7]
-	toNickname := "用户" + from[:7]
-	doWhat := "转账"
-	howMuch := amountETH.Text('f', 2)
-	fromIsDex := false
-	toIsDex := false
-
-	if from == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
-		fromNickname = "在 PancakeSwap"
-		doWhat = "买入"
-		fromIsDex = true
-	}
-
-	if to == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
-		toNickname = "在 PancakeSwap"
-		doWhat = "卖出"
-		toIsDex = true
-	}
-
-	if fromIsDex {
-		return toNickname + " " + fromNickname + " " + doWhat + " " + howMuch
-	} else if toIsDex {
-		return fromNickname + " " + toNickname + " " + doWhat + " " + howMuch
-	} else {
-		return fromNickname + " " + doWhat + " " + howMuch + " 给 " + toNickname
-	}
-}
-
 func main() {
 	var fromBlock = "0"
 	ctx := context.TODO()
@@ -59,6 +32,43 @@ func main() {
 	opts.SetLimit(1000)
 
 	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
+	db := mysql.ArithFiDB
+
+	UserTagMap := bscscan.UserMap{
+		"0xdccbdbaee4d9d6639242f18f4eb08f4edad1a331": "ArithFi: System",
+		"0x7c4fb3E5ba0a5D80658889715b307e66916f29b2": "ArithFi: Deployer",
+		"0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38": "PancakeSwap",
+		"0x0000000000000000000000000000000000000000": "NULL",
+		"0xe26d976910D688083c8F9eCcB25e42345E5b95a0": "ArithFi: BSC-ETH-Bridge",
+	}
+
+	log.Println("准备加载KOL用户信息")
+	query, err := db.Query(`SELECT walletAddress FROM f_kol_info`)
+	if err != nil {
+		return
+	}
+	for query.Next() {
+		var walletAddress string
+		if err := query.Scan(&walletAddress); err != nil {
+			continue
+		}
+		walletAddress = strings.ToLower(walletAddress)
+		UserTagMap[walletAddress] = "KOL"
+	}
+
+	log.Println("准备加载平台用户信息")
+	query, err = db.Query(`SELECT walletAddress FROM f_user_assets`)
+	if err != nil {
+		return
+	}
+	for query.Next() {
+		var walletAddress string
+		if err := query.Scan(&walletAddress); err != nil {
+			continue
+		}
+		walletAddress = strings.ToLower(walletAddress)
+		UserTagMap[walletAddress] = "User"
+	}
 
 	for {
 		cursor, err := collection.Find(ctx, bson.M{"blockNumber": bson.M{"$gte": fromBlock}}, opts)
@@ -93,7 +103,7 @@ func main() {
 			amountWei := new(big.Int)
 			amountWei.SetString(strings.TrimPrefix(_log["data"].(string), "0x"), 16)
 			amountEth := ConvertWeiToEth(amountWei)
-			tag := GenerateTxTag(from, to, amountEth)
+			tag := bscscan.GenerateTxTag(from, to, amountEth, UserTagMap)
 
 			abstract := bson.M{
 				"from":   from,
