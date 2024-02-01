@@ -30,13 +30,13 @@ func GenerateTxTag(from string, to string, amountETH *big.Float) string {
 	toIsDex := false
 
 	if from == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
-		fromNickname = "在 PancakeSwap 上"
+		fromNickname = "在 PancakeSwap"
 		doWhat = "买入"
 		fromIsDex = true
 	}
 
 	if to == "0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38" {
-		toNickname = "在 PancakeSwap 上"
+		toNickname = "在 PancakeSwap"
 		doWhat = "卖出"
 		toIsDex = true
 	}
