@@ -27,9 +27,7 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 		var uri = klinesURL + "?symbol=" + symbol + "&interval=" + interval + "&startTime=" + strconv.FormatInt(from, 10) + "&endTime=" + strconv.FormatInt(to, 10) + "&limit=500"
 		cacheArrayCmd := cache.CACHE.Get(ctx, uri)
 
-		if cacheArrayCmd.Err() != nil {
-			log.Println("Error getting cache:", cacheArrayCmd.Err())
-		} else {
+		if cacheArrayCmd.Err() == nil {
 			cacheArrayStr := cacheArrayCmd.Val()
 
 			if cacheArrayStr != "" {
