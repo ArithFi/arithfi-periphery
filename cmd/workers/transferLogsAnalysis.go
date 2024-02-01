@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"github.com/arithfi/arithfi-periphery/configs/mongo"
-	"github.com/arithfi/arithfi-periphery/configs/mysql"
-	"github.com/arithfi/arithfi-periphery/internal/bscscan"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -32,47 +30,6 @@ func main() {
 	opts.SetLimit(1000)
 
 	collection := mongo.MONGODB.Database("chain-bsc").Collection("transfer-logs")
-	db := mysql.ArithFiDB
-
-	UserTagMap := bscscan.UserMap{
-		"0xdccbdbaee4d9d6639242f18f4eb08f4edad1a331": "ArithFi: System",
-		"0x7c4fb3E5ba0a5D80658889715b307e66916f29b2": "ArithFi: Deployer",
-		"0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38": "PancakeSwap",
-		"0x0000000000000000000000000000000000000000": "NULL",
-		"0xe26d976910D688083c8F9eCcB25e42345E5b95a0": "ArithFi: BSC-ETH-Bridge",
-	}
-
-	query, err := db.Query(`SELECT walletAddress FROM f_kol_info`)
-	if err != nil {
-		return
-	}
-	for query.Next() {
-		var walletAddress string
-		if err := query.Scan(&walletAddress); err != nil {
-			continue
-		}
-		walletAddress = strings.ToLower(walletAddress)
-		if UserTagMap[walletAddress] != "" {
-			continue
-		}
-		UserTagMap[walletAddress] = "KOL"
-	}
-
-	query, err = db.Query(`SELECT walletAddress FROM f_user_assets`)
-	if err != nil {
-		return
-	}
-	for query.Next() {
-		var walletAddress string
-		if err := query.Scan(&walletAddress); err != nil {
-			continue
-		}
-		walletAddress = strings.ToLower(walletAddress)
-		if UserTagMap[walletAddress] != "" {
-			continue
-		}
-		UserTagMap[walletAddress] = "Trader"
-	}
 
 	for {
 		cursor, err := collection.Find(ctx, bson.M{"blockNumber": bson.M{"$gte": fromBlock}}, opts)
@@ -107,13 +64,11 @@ func main() {
 			amountWei := new(big.Int)
 			amountWei.SetString(strings.TrimPrefix(_log["data"].(string), "0x"), 16)
 			amountEth := ConvertWeiToEth(amountWei)
-			tag := bscscan.GenerateTxTag(from, to, amountEth, UserTagMap)
 
 			abstract := bson.M{
 				"from":   from,
 				"to":     to,
 				"amount": amountEth.String(),
-				"tag":    tag,
 			}
 			aggregate := bson.M{
 				"date":     localdate,
@@ -125,7 +80,6 @@ func main() {
 				return
 			}
 			log.Println("transfer_logs_analysis: success, block", _log["blockNumber"], ", date", localdate, ", time", localtime)
-			log.Println(tag)
 			fromBlock = _log["blockNumber"].(string)
 		}
 		log.Println("transfer_logs_analysis: Sleep 10 seconds")
