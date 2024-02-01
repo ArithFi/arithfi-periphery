@@ -42,7 +42,6 @@ func main() {
 		"0xe26d976910D688083c8F9eCcB25e42345E5b95a0": "ArithFi: BSC-ETH-Bridge",
 	}
 
-	log.Println("准备加载KOL用户信息")
 	query, err := db.Query(`SELECT walletAddress FROM f_kol_info`)
 	if err != nil {
 		return
@@ -56,7 +55,6 @@ func main() {
 		UserTagMap[walletAddress] = "KOL"
 	}
 
-	log.Println("准备加载平台用户信息")
 	query, err = db.Query(`SELECT walletAddress FROM f_user_assets`)
 	if err != nil {
 		return
@@ -67,7 +65,7 @@ func main() {
 			continue
 		}
 		walletAddress = strings.ToLower(walletAddress)
-		UserTagMap[walletAddress] = "User"
+		UserTagMap[walletAddress] = "Trader"
 	}
 
 	for {
