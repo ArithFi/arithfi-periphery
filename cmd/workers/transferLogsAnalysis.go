@@ -42,13 +42,29 @@ func main() {
 		"0xe26d976910D688083c8F9eCcB25e42345E5b95a0": "ArithFi: BSC-ETH-Bridge",
 	}
 
-	query, err := db.Query(`SELECT walletAddress, type, tgName, country FROM f_kol_info`)
+	query, err := db.Query(`SELECT walletAddress, tgName, notes FROM f_user_blacklist`)
 	if err != nil {
 		return
 	}
 	for query.Next() {
-		var walletAddress, typeStr, tgName, country string
-		if err := query.Scan(&walletAddress, &typeStr, &tgName, &country); err != nil {
+		var wallet, tgName, notes string
+		if err := query.Scan(&wallet, &tgName, &notes); err != nil {
+			continue
+		}
+		wallet = strings.ToLower(wallet)
+		if UserTagMap[wallet] != "" {
+			continue
+		}
+		UserTagMap[wallet] = "Blacklist:" + tgName + "(" + notes + ")"
+	}
+
+	query, err = db.Query(`SELECT walletAddress, type, tgName, country FROM f_kol_info`)
+	if err != nil {
+		return
+	}
+	for query.Next() {
+		var walletAddress, tgName, country string
+		if err := query.Scan(&walletAddress, &tgName, &country); err != nil {
 			continue
 		}
 		walletAddress = strings.ToLower(walletAddress)
@@ -58,7 +74,7 @@ func main() {
 		if UserTagMap[walletAddress] != "" {
 			continue
 		}
-		UserTagMap[walletAddress] = typeStr + "-" + tgName + "-" + country
+		UserTagMap[walletAddress] = "KOL:" + tgName + "(" + country + ")"
 	}
 
 	query, err = db.Query(`SELECT walletAddress FROM f_user_assets`)
@@ -74,7 +90,7 @@ func main() {
 		if UserTagMap[walletAddress] != "" {
 			continue
 		}
-		UserTagMap[walletAddress] = "Trader"
+		UserTagMap[walletAddress] = "Trader:" + walletAddress[0:6]
 	}
 
 	for {
