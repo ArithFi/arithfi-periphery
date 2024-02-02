@@ -42,20 +42,23 @@ func main() {
 		"0xe26d976910D688083c8F9eCcB25e42345E5b95a0": "ArithFi: BSC-ETH-Bridge",
 	}
 
-	query, err := db.Query(`SELECT walletAddress FROM f_kol_info`)
+	query, err := db.Query(`SELECT walletAddress, type, tgName, country FROM f_kol_info`)
 	if err != nil {
 		return
 	}
 	for query.Next() {
-		var walletAddress string
-		if err := query.Scan(&walletAddress); err != nil {
+		var walletAddress, typeStr, tgName, country string
+		if err := query.Scan(&walletAddress, &typeStr, &tgName, &country); err != nil {
 			continue
 		}
 		walletAddress = strings.ToLower(walletAddress)
+		if tgName == "" {
+			tgName = walletAddress[0:6]
+		}
 		if UserTagMap[walletAddress] != "" {
 			continue
 		}
-		UserTagMap[walletAddress] = "KOL"
+		UserTagMap[walletAddress] = typeStr + "-" + tgName + "-" + country
 	}
 
 	query, err = db.Query(`SELECT walletAddress FROM f_user_assets`)
