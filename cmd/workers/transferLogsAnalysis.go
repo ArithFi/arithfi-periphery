@@ -36,7 +36,7 @@ func main() {
 
 	UserTagMap := bscscan.UserMap{
 		"0xdccbdbaee4d9d6639242f18f4eb08f4edad1a331": "ArithFi: System",
-		"0x7c4fb3E5ba0a5D80658889715b307e66916f29b2": "ArithFi: Deployer",
+		"0x7c4fb3e5ba0a5d80658889715b307e66916f29b2": "ArithFi: Deployer",
 		"0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38": "PancakeSwap",
 		"0x0000000000000000000000000000000000000000": "NULL",
 		"0xe26d976910D688083c8F9eCcB25e42345E5b95a0": "ArithFi: BSC-ETH-Bridge",
