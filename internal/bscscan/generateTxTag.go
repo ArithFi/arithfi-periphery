@@ -7,8 +7,8 @@ import (
 type UserMap = map[string]string
 
 func GenerateTxTag(from string, to string, amountETH *big.Float, userMap UserMap) string {
-	fromNickname := "Unknown:" + from[:7]
-	toNickname := "Unknown:" + to[:7]
+	fromNickname := "Unknown: " + from[:7]
+	toNickname := "Unknown: " + to[:7]
 	howMuch := amountETH.Text('f', 2)
 
 	if userMap[from] != "" {

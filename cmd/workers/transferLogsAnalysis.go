@@ -40,6 +40,7 @@ func main() {
 		"0xac4c8fabbd1b7e6a01afd87a17570bbfa28c7a38": "PancakeSwap",
 		"0x0000000000000000000000000000000000000000": "NULL",
 		"0xe26d976910D688083c8F9eCcB25e42345E5b95a0": "ArithFi: BSC-ETH-Bridge",
+		"0x0000000000b35ae47b12b8ccf2f8d51e208760c8": "Contract: Fake_Phishing2019",
 	}
 
 	query, err := db.Query(`SELECT walletAddress, tgName, notes FROM f_user_blacklist`)
@@ -55,7 +56,7 @@ func main() {
 		if UserTagMap[wallet] != "" {
 			continue
 		}
-		UserTagMap[wallet] = "Blacklist:" + tgName + "(" + notes + ")"
+		UserTagMap[wallet] = "Blacklist: " + tgName + "(" + notes + ")"
 	}
 
 	query, err = db.Query(`SELECT walletAddress, type, tgName, country FROM f_kol_info`)
@@ -74,7 +75,7 @@ func main() {
 		if UserTagMap[walletAddress] != "" {
 			continue
 		}
-		UserTagMap[walletAddress] = "KOL:" + tgName + "(" + country + ")"
+		UserTagMap[walletAddress] = "KOL: " + tgName + "(" + country + ")"
 	}
 
 	query, err = db.Query(`SELECT walletAddress FROM f_user_assets`)
@@ -90,7 +91,7 @@ func main() {
 		if UserTagMap[walletAddress] != "" {
 			continue
 		}
-		UserTagMap[walletAddress] = "Trader:" + walletAddress[0:6]
+		UserTagMap[walletAddress] = "Trader: " + walletAddress[0:6]
 	}
 
 	for {
