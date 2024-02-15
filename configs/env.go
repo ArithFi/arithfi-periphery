@@ -26,11 +26,6 @@ func EnvMysqlURI() string {
 	return url
 }
 
-func EnvMysqlCacheURI() string {
-	url := os.Getenv("DSN2")
-	return url
-}
-
 func EnvRedisAddr() string {
 	url := os.Getenv("REDIS_URL")
 	return url
