@@ -158,6 +158,6 @@ func GetByInterval(symbol string, interval string, limit string) *[]model.Kline 
 			return
 		}
 	}()
-	fmt.Println("Get forex kline: ", symbol, interval, exchangeInfo[0].OpenTime)
+	fmt.Println("Get forex kline: ", symbol, interval, limit)
 	return &exchangeInfo
 }
