@@ -75,7 +75,7 @@ func History(c echo.Context) error {
 		klines := forex.GetKlines(symbol, resolution, from*1000, to*1000)
 
 		result := model.Bar{}
-		if klines == nil {
+		if klines == nil || len(*klines) == 0 {
 			result.S = "no_data"
 			result.T = []int64{}
 			result.O = []float64{}
