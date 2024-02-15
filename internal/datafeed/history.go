@@ -75,10 +75,17 @@ func History(c echo.Context) error {
 		klines := forex.GetKlines(symbol, resolution, from*1000, to*1000)
 
 		result := model.Bar{}
-		result.S = "ok"
 		if klines == nil {
-			return c.JSON(http.StatusOK, result)
+			result.S = "no_data"
+			result.T = []int64{}
+			result.O = []float64{}
+			result.H = []float64{}
+			result.L = []float64{}
+			result.C = []float64{}
+			result.V = []float64{}
+			return c.JSON(http.StatusBadRequest, result)
 		}
+		result.S = "ok"
 		for _, data := range *klines {
 			result.T = append(result.T, data.OpenTime)
 			openPrice, _ := strconv.ParseFloat(data.Open, 64)
