@@ -10,10 +10,12 @@ import (
 
 var (
 	ArithFiDB *sql.DB
+	CacheDB   *sql.DB
 )
 
 func init() {
 	ArithFiDB = connectMysql(configs.EnvMysqlURI())
+	CacheDB = connectMysql(configs.EnvMysqlCacheURI())
 }
 
 func connectMysql(uri string) *sql.DB {

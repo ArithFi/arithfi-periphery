@@ -18,7 +18,7 @@ const (
 )
 
 func cacheKlines(exchangeInfo *[]model.Kline, resolution string, symbol string) error {
-	tx, err := mysql.ArithFiDB.Begin()
+	tx, err := mysql.CacheDB.Begin()
 	if err != nil {
 		return err
 	}
