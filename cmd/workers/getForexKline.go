@@ -134,7 +134,8 @@ func GetByInterval(symbol string, interval string, limit string) *[]model.Kline 
 	var arr [][]interface{}
 	err := json.Unmarshal(body, &arr)
 	if err != nil {
-		log.Println("Unmarshal error")
+		log.Println("Unmarshal error: ", klinesURL+"?symbol="+symbol+"&interval="+interval+"&limit="+limit)
+		log.Println(err)
 		return nil
 	}
 	exchangeInfo := make([]model.Kline, len(arr))
