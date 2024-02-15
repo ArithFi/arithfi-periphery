@@ -79,23 +79,43 @@ func requestAPI(endpoint string) []byte {
 func main() {
 	ticker := time.NewTicker(2 * time.Second)
 	var count = 0
-	var limit = 1
+	var limit1, limit2, limit3, limit4, limit5 = 1, 1, 1, 1, 1
 
 	for {
-		if count/60 == 0 {
-			limit = 500
+		if count%100 == 20 {
+			limit1 = 500
 		} else {
-			limit = 1
+			limit1 = 1
+		}
+		if count%100 == 40 {
+			limit2 = 500
+		} else {
+			limit2 = 1
+		}
+		if count%100 == 60 {
+			limit3 = 500
+		} else {
+			limit3 = 1
+		}
+		if count%100 == 80 {
+			limit4 = 500
+		} else {
+			limit4 = 1
+		}
+		if count%100 == 0 {
+			limit5 = 500
+		} else {
+			limit5 = 1
 		}
 		select {
 		case <-ticker.C:
 			fmt.Println("Tick at", time.Now())
 			count++
-			go KlineIntervalWorker("AUDUSD", limit)
-			go KlineIntervalWorker("EURUSD", limit)
-			go KlineIntervalWorker("USDJPY", limit)
-			go KlineIntervalWorker("USDCAD", limit)
-			go KlineIntervalWorker("GBPUSD", limit)
+			go KlineIntervalWorker("AUDUSD", limit1)
+			go KlineIntervalWorker("EURUSD", limit2)
+			go KlineIntervalWorker("USDJPY", limit3)
+			go KlineIntervalWorker("USDCAD", limit4)
+			go KlineIntervalWorker("GBPUSD", limit5)
 		}
 	}
 }
