@@ -82,11 +82,7 @@ func main() {
 	var limit = 1
 
 	for {
-		if count/60 == 0 {
-			limit = 500
-		} else {
-			limit = 1
-		}
+		limit = 1
 		select {
 		case <-ticker.C:
 			fmt.Println("Tick at", time.Now())
