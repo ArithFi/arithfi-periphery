@@ -18,7 +18,7 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 }
 
 func getFromCache(symbol string, interval string, startTime int64, endTime int64) *[]model.Kline {
-	result, _ := mysql.CacheDB.Query("select timestamp, open, high, low, close, volume from kline_cache where symbol = ? and resolution = ? and timestamp >= ? and timestamp < ? order by timestamp", symbol, interval, startTime, endTime)
+	result, _ := mysql.ArithFiDB.Query("select timestamp, open, high, low, close, volume from kline_cache where symbol = ? and resolution = ? and timestamp >= ? and timestamp < ? order by timestamp", symbol, interval, startTime, endTime)
 
 	exchangeInfo := make([]model.Kline, 0)
 	for result.Next() {
