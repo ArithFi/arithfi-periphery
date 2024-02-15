@@ -73,7 +73,7 @@ func GetKlines(symbol string, interval string, startTime int64, endTime int64) *
 					log.Fatalf("Failed to marshal klines: %v", err)
 				}
 				totalKlinesStr := string(totalKlinesJSON)
-				_, err = cache.CACHE.Set(ctx, uri, totalKlinesStr, 10*time.Second).Result()
+				_, err = cache.CACHE.Set(ctx, uri, totalKlinesStr, 2*time.Second).Result()
 				if err != nil {
 					log.Fatalf("Failed to set klines in Redis: %v", err)
 				}
