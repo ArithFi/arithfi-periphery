@@ -1,5 +1,4 @@
-version: '3.8'
-name: arithfi-periphery
+version: '3.3'
 
 services:
   rest-api:
